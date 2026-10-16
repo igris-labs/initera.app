@@ -2,7 +2,7 @@
 
 # Initera
 
-Initera is a local desktop app for planning projects and managing issues. Rahul Vashishtha is its author. Igris Labs is his personal laboratory. The app uses Vue 3, Tauri 2, and SQLite. Your work stays on your computer unless you export a backup.
+Initera is a desktop app for planning projects and managing issues. Rahul Vashishtha is its author. Igris Labs is his personal laboratory. The app uses Vue 3, Tauri 2, and SQLite. Your work stays on your computer unless you export a backup.
 
 ## Install and run from source
 
@@ -13,7 +13,9 @@ pnpm install --frozen-lockfile
 pnpm tauri dev
 ```
 
-The desktop app lives in `apps/desktop`. `pnpm dev` starts an empty browser preview backed by local storage; use the desktop app for SQLite persistence. Browser tests seed their own fixtures.
+The desktop app lives in `apps/desktop`. `pnpm dev` starts a browser preview backed by local storage; use the desktop app for SQLite persistence. Browser tests seed their own fixtures.
+
+The website and user guide live in `apps/docs`. Run them with `pnpm --filter docs dev`.
 
 ## Checks
 
@@ -29,12 +31,11 @@ Install Chromium with `pnpm --filter initera exec playwright install chromium` b
 
 ## Documentation
 
-- [User guide](apps/docs/content/1.getting-started/1.quick-start.md)
+- [Website and user guide](apps/docs/README.md)
 - [Data and backups](docs/data-and-backups.md)
 - [Contributing](CONTRIBUTING.md)
 - [Architecture](docs/architecture.md)
 - [Release process](docs/releasing.md)
-- [V1 product contracts](research-data/docs/v1/README.md)
 
 The schema in `apps/desktop/src-tauri/src/schema.sql` is version 1. This baseline supports clean installs. Databases made by development builds are outside its upgrade path; export the data you need before installing a release.
 

@@ -1,6 +1,6 @@
-# Initera documentation
+# Initera website and documentation
 
-This Nuxt site contains the Initera user guide. Rahul Vashishtha writes and maintains the project under Igris Labs, his personal laboratory.
+This Nuxt site contains the Initera website and user guide. Rahul Vashishtha writes and maintains the project under Igris Labs, his personal laboratory.
 
 ## Run locally
 
@@ -11,7 +11,7 @@ pnpm install --frozen-lockfile
 pnpm --filter docs dev
 ```
 
-Open the URL printed by Nuxt. User guides live in numbered directories under `apps/docs/content/`. Add a Markdown file to a section and Nuxt Content includes it in the sidebar and search automatically. Its title comes from the Markdown heading or `title` frontmatter, and its URL is generated from its location. Prefix filenames with a number to set their order, such as `3.issue-properties.md`. The optional `icon` field controls the sidebar icon; pages without it use the default icon.
+Open the URL printed by Nuxt. The landing, download, and about pages live in `apps/docs/app/pages/`. User guides live in numbered directories under `apps/docs/content/`. Add a Markdown file to a section and Nuxt Content includes it in the sidebar and search automatically. Its title comes from the Markdown heading or `title` frontmatter, and its URL is generated from its location. Prefix filenames with a number to set their order, such as `3.issue-properties.md`. The optional `icon` field controls the sidebar icon; pages without it use the default icon.
 
 The Nuxt app lives under `app/`. The collection source and frontmatter schema live in `content.config.ts`. `app/composables/useDocsNavigation.ts` loads Nuxt Content navigation for the sidebar, search, breadcrumbs, and adjacent-page links. Keep guide text in Markdown rather than in Vue components.
 
