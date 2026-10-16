@@ -1,0 +1,26 @@
+{
+  "name": "initera-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "author": "Rahul Vashishtha",
+  "scripts": {
+    "dev": "pnpm --filter initera dev",
+    "build": "pnpm --filter initera build",
+    "typecheck": "pnpm --filter initera typecheck",
+    "lint": "oxlint apps packages eslint.config.mjs && eslint 'apps/**/*.{js,mjs,cjs,ts,vue}' 'packages/**/*.{js,mjs,cjs,ts,vue}' eslint.config.mjs --no-error-on-unmatched-pattern",
+    "format": "oxfmt apps packages package.json pnpm-workspace.yaml eslint.config.mjs .oxfmtrc.json",
+    "format:check": "oxfmt --check apps packages package.json pnpm-workspace.yaml eslint.config.mjs .oxfmtrc.json",
+    "test:ui": "pnpm --filter initera test:ui",
+    "tauri": "pnpm --filter initera tauri"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^9.5.1",
+    "eslint": "^10.12.0",
+    "oxfmt": "^0.70.0",
+    "oxlint": "^1.85.0"
+  },
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "packageManager": "pnpm@10.7.1"
+}

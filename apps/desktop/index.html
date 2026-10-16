@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b0b0b" />
+    <title>Initera</title>
+    <style>
+      html.workspace-switch-pending,
+      html.workspace-switch-pending body {
+        background: var(--workspace-switch-color);
+      }
+      #workspace-transition {
+        position: fixed;
+        inset: 0;
+        z-index: 2147483647;
+        background: var(--workspace-switch-color);
+        color: var(--workspace-switch-foreground);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        visibility: hidden;
+        transition:
+          opacity 180ms ease-in,
+          visibility 180ms;
+      }
+      html.workspace-switch-pending #workspace-transition {
+        opacity: 1;
+        visibility: visible;
+      }
+      html.workspace-switch-ready #workspace-transition {
+        opacity: 0;
+        visibility: hidden;
+        transition-duration: 220ms;
+      }
+      .workspace-transition-content {
+        display: grid;
+        justify-items: center;
+        gap: 12px;
+        padding: 24px;
+        text-align: center;
+        font-family: Inter, system-ui, sans-serif;
+      }
+      .workspace-transition-spinner {
+        width: 28px;
+        height: 28px;
+        border: 2px solid currentColor;
+        border-right-color: transparent;
+        border-radius: 50%;
+        opacity: 0.65;
+        animation: workspace-switch-spin 900ms linear infinite;
+      }
+      .workspace-transition-content p {
+        margin: 0;
+        opacity: 0.6;
+        font-size: 12px;
+      }
+      .workspace-transition-content strong {
+        font-size: 18px;
+        font-weight: 600;
+      }
+      @keyframes workspace-switch-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #workspace-transition {
+          transition: none;
+        }
+        .workspace-transition-spinner {
+          animation: none;
+        }
+      }
+    </style>
+    <script>
+      try {
+        const transition = JSON.parse(sessionStorage.getItem('workspace-transition') || 'null');
+        if (transition) {
+          document.documentElement.style.setProperty(
+            '--workspace-switch-color',
+            transition.background,
+          );
+          document.documentElement.style.setProperty(
+            '--workspace-switch-foreground',
+            transition.foreground,
+          );
+          document.documentElement.classList.add('workspace-switch-pending');
+          document.documentElement.dataset.workspaceSwitchName = transition.name;
+          document.documentElement.dataset.workspaceSwitchAction = transition.action;
+        }
+      } catch {}
+    </script>
+  </head>
+  <body class="antialiased">
+    <div id="workspace-transition" role="status" aria-live="polite">
+      <div class="workspace-transition-content">
+        <div class="workspace-transition-spinner" aria-hidden="true"></div>
+        <p id="workspace-transition-action">Switching workspace to</p>
+        <strong id="workspace-transition-target"></strong>
+        <p>Preparing your workspace…</p>
+      </div>
+    </div>
+    <script>
+      const root = document.documentElement;
+      if (root.dataset.workspaceSwitchName) {
+        document.getElementById('workspace-transition-target').textContent =
+          root.dataset.workspaceSwitchName;
+        document.getElementById('workspace-transition-action').textContent =
+          root.dataset.workspaceSwitchAction === 'create'
+            ? 'Creating workspace'
+            : 'Switching workspace to';
+      }
+    </script>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

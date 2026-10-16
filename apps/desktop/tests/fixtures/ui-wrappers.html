@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>UI wrapper smoke test</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module">
+      import '../../src/assets/css/main.css';
+      import { createApp, defineComponent, h, ref } from 'vue';
+      import { Accordion } from '../../src/components/ui/accordion';
+      import { Tabs } from '../../src/components/ui/tabs';
+      import { Toggle } from '../../src/components/ui/toggle';
+
+      const TestApp = defineComponent({
+        setup() {
+          const tab = ref('one');
+          const pressed = ref(false);
+          return () =>
+            h('main', [
+              h(Accordion, {
+                items: [{ value: 'details', label: 'Details', content: 'Accordion content' }],
+              }),
+              h(
+                Tabs,
+                {
+                  items: [
+                    { value: 'one', label: 'One' },
+                    { value: 'two', label: 'Two' },
+                  ],
+                  modelValue: tab.value,
+                  'onUpdate:modelValue': (value) => {
+                    tab.value = value;
+                  },
+                },
+                {
+                  'panel-one': () => 'First panel',
+                  'panel-two': () => 'Second panel',
+                },
+              ),
+              h(
+                Toggle,
+                {
+                  modelValue: pressed.value,
+                  'onUpdate:modelValue': (value) => {
+                    pressed.value = value;
+                  },
+                  'aria-label': 'Pin item',
+                },
+                { default: ({ pressed: isPressed }) => (isPressed ? 'Pinned' : 'Pin') },
+              ),
+            ]);
+        },
+      });
+      createApp(TestApp).mount('#app');
+    </script>
+  </body>
+</html>
