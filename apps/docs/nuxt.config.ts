@@ -9,6 +9,7 @@ export default defineNuxtConfig({
     '@nuxt/icon/module',
     '@nuxt/image',
     '@nuxtjs/seo',
+    'nuxt-og-image',
     '@vueuse/nuxt/module',
   ],
   components: [{ path: '~/components', ignore: ['**/ui/**'] }],
@@ -20,6 +21,7 @@ export default defineNuxtConfig({
     '~/assets/css/marketing-pages.css',
   ],
   site: { name: 'Initera' },
+  ogImage: { zeroRuntime: true },
   app: {
     head: {
       meta: [{ name: 'author', content: 'Rahul Vashishtha' }],

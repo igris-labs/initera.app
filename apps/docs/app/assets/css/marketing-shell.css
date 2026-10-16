@@ -43,22 +43,11 @@
   height: 1.9rem;
 }
 
-.marketing-desktop-nav,
 .marketing-header-actions {
   display: flex;
   align-items: center;
-  gap: 2rem;
 }
 
-.marketing-desktop-nav a {
-  color: var(--ui-text-muted);
-  font-size: 0.82rem;
-  font-weight: 500;
-  text-decoration: none;
-  transition: color 160ms ease;
-}
-
-.marketing-desktop-nav a:hover,
 .marketing-footer a:hover {
   color: var(--ui-text-highlighted);
 }
@@ -197,24 +186,9 @@
   }
 
   .marketing-mobile-nav {
-    display: flex;
-    flex-direction: column;
+    display: block;
     border-top: 1px solid var(--ui-border);
     padding: 0.5rem 1.5rem 1rem;
-  }
-
-  .marketing-mobile-nav a {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-block: 0.9rem;
-    color: var(--ui-text);
-    font-size: 0.9rem;
-    text-decoration: none;
-  }
-
-  .marketing-mobile-nav a + a {
-    border-top: 1px solid var(--ui-border);
   }
 }
 
@@ -239,7 +213,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .marketing-desktop-nav a,
   .marketing-text-link {
     transition: none;
   }

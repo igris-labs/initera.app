@@ -1,12 +1,36 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import type { NavigationMenuItem } from 'akaza-ui';
+import { computed, ref, resolveComponent } from 'vue';
 import { Button, buttonVariants } from '../components/ui/button';
-import { Icon } from '../components/ui/icon';
+import { NavigationMenu } from '../components/ui/navigation-menu';
 
 const route = useRoute();
 const theme = useCookie<'dark' | 'light'>('docs-theme', { default: () => 'light' });
 const mobileMenuOpen = ref(false);
 const headerCta = buttonVariants({ variant: 'solid', size: 'sm' });
+const nuxtLink = resolveComponent('NuxtLink');
+
+const navigationItems = computed<NavigationMenuItem[]>(() => [
+  {
+    label: 'Features',
+    to: '/#features',
+    as: nuxtLink,
+    active: route.path === '/' && route.hash === '#features',
+  },
+  {
+    label: 'How it works',
+    to: '/#workflow',
+    as: nuxtLink,
+    active: route.path === '/' && route.hash === '#workflow',
+  },
+  { label: 'Docs', to: '/getting-started/quick-start', as: nuxtLink },
+  { label: 'About', to: '/about', as: nuxtLink, active: route.path === '/about' },
+]);
+
+const mobileNavigationItems = computed<NavigationMenuItem[]>(() => [
+  ...navigationItems.value,
+  { label: 'Get started', to: '/download', as: nuxtLink, active: route.path === '/download' },
+]);
 
 useHead({ htmlAttrs: { class: theme } });
 
@@ -31,12 +55,16 @@ function toggleTheme() {
           <span>Initera</span>
         </NuxtLink>
 
-        <nav class="marketing-desktop-nav" aria-label="Main navigation">
-          <NuxtLink to="/#features">Features</NuxtLink>
-          <NuxtLink to="/#workflow">How it works</NuxtLink>
-          <NuxtLink to="/getting-started/quick-start">Docs</NuxtLink>
-          <NuxtLink to="/about">About</NuxtLink>
-        </nav>
+        <NavigationMenu
+          :key="route.fullPath"
+          :items="navigationItems"
+          aria-label="Main navigation"
+          :ui="{
+            root: 'marketing-desktop-nav',
+            list: 'flex items-center gap-1',
+            link: 'flex min-h-8 items-center rounded-md px-3 text-xs font-medium text-foreground-muted transition-colors hover:bg-accented hover:text-foreground-highlighted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-info data-akaza-active:bg-accented data-akaza-active:text-foreground-highlighted',
+          }"
+        />
 
         <div class="marketing-header-actions">
           <Button
@@ -46,7 +74,10 @@ function toggleTheme() {
             :aria-label="theme === 'light' ? 'Use dark theme' : 'Use light theme'"
             @click="toggleTheme"
           />
-          <NuxtLink to="/download" :class="[headerCta, 'marketing-header-cta']"
+          <NuxtLink
+            to="/download"
+            :class="[headerCta, 'marketing-header-cta']"
+            :aria-current="route.path === '/download' ? 'page' : undefined"
             >Get started</NuxtLink
           >
           <Button
@@ -62,20 +93,22 @@ function toggleTheme() {
         </div>
       </div>
 
-      <nav
+      <NavigationMenu
         v-if="mobileMenuOpen"
+        :key="route.fullPath"
         id="marketing-mobile-nav"
-        class="marketing-mobile-nav"
+        :items="mobileNavigationItems"
+        orientation="vertical"
+        content-mode="inline"
         aria-label="Mobile navigation"
-      >
-        <NuxtLink to="/#features" @click="mobileMenuOpen = false">Features</NuxtLink>
-        <NuxtLink to="/#workflow" @click="mobileMenuOpen = false">How it works</NuxtLink>
-        <NuxtLink to="/getting-started/quick-start">Docs</NuxtLink>
-        <NuxtLink to="/about">About</NuxtLink>
-        <NuxtLink to="/download"
-          >Get started <Icon name="i-tabler-arrow-up-right" size="sm"
-        /></NuxtLink>
-      </nav>
+        :ui="{
+          root: 'marketing-mobile-nav',
+          list: 'flex w-full flex-col gap-1',
+          item: 'w-full',
+          link: 'flex min-h-10 w-full items-center rounded-md px-3 text-sm font-medium text-foreground-muted transition-colors hover:bg-accented hover:text-foreground-highlighted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-info data-akaza-active:bg-accented data-akaza-active:text-foreground-highlighted',
+        }"
+        @select="mobileMenuOpen = false"
+      />
     </header>
 
     <main id="main-content"><slot /></main>
