@@ -29,6 +29,9 @@
   "bundle": {
     "active": true,
     "targets": "all",
+    "publisher": "Rahul Vashishtha",
+    "copyright": "Copyright © 2026 Rahul Vashishtha",
+    "license": "MIT",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",

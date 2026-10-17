@@ -1,8 +1,8 @@
 name: Release
 
 on:
-  release:
-    types: [published]
+  push:
+    tags: ['v*']
 
 permissions:
   contents: write
@@ -31,7 +31,10 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.98.0
+          components: rustfmt
       - uses: swatinem/rust-cache@v2
         with:
           workspaces: apps/desktop/src-tauri
@@ -42,9 +45,10 @@ jobs:
       - uses: tauri-apps/tauri-action@v0.6.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APPLE_SIGNING_IDENTITY: ${{ runner.os == 'macOS' && '-' || '' }}
         with:
           projectPath: apps/desktop
-          tauriScript: pnpm tauri
+          tauriScript: pnpm exec tauri
           tagName: ${{ github.ref_name }}
           releaseName: Initera ${{ github.ref_name }}
           releaseDraft: true

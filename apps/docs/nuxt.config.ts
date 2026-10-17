@@ -13,13 +13,7 @@ export default defineNuxtConfig({
     '@vueuse/nuxt/module',
   ],
   components: [{ path: '~/components', ignore: ['**/ui/**'] }],
-  css: [
-    '~/assets/css/main.css',
-    '~/assets/css/docs.css',
-    '~/assets/css/marketing-shell.css',
-    '~/assets/css/marketing-home.css',
-    '~/assets/css/marketing-pages.css',
-  ],
+  css: ['~/assets/css/main.css', '~/assets/css/docs.css'],
   site: { name: 'Initera' },
   ogImage: { zeroRuntime: true },
   app: {
