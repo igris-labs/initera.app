@@ -14,8 +14,14 @@ export default defineNuxtConfig({
   ],
   components: [{ path: '~/components', ignore: ['**/ui/**'] }],
   css: ['~/assets/css/main.css', '~/assets/css/docs.css'],
-  site: { name: 'Initera' },
+  site: { name: 'Initera', url: 'https://initera.app' },
   ogImage: { zeroRuntime: true },
+  nitro: {
+    prerender: {
+      crawlLinks: true,
+      routes: ['/'],
+    },
+  },
   app: {
     head: {
       meta: [{ name: 'author', content: 'Rahul Vashishtha' }],
