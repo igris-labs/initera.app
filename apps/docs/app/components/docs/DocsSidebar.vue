@@ -21,7 +21,6 @@ const items = computed<NavigationMenuItem[]>(() =>
       to: item.path,
       as: nuxtLink,
       iconName: item.icon,
-      active: route.path === item.path,
     })),
   ]),
 );
@@ -30,6 +29,7 @@ const items = computed<NavigationMenuItem[]>(() =>
 <template>
   <NavigationMenu
     :items="items"
+    :model-value="route.path"
     orientation="vertical"
     content-mode="inline"
     aria-label="Documentation"
