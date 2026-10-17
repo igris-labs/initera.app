@@ -161,6 +161,7 @@ fn bulk_triage_is_atomic_and_replays_the_same_decision() {
             [], |row| row.get(0),
         ).unwrap();
     assert_eq!(reasons, 2);
+    drop(connection);
     fs::remove_dir_all(root).unwrap();
 }
 
@@ -399,6 +400,7 @@ fn versioned_issue_writes_replay_and_reject_stale_updates() {
         })
         .unwrap();
     assert_eq!(receipt_count, 2);
+    drop(connection);
     fs::remove_dir_all(root).unwrap();
 }
 
@@ -440,6 +442,7 @@ fn inactive_project_cannot_receive_new_issues_or_milestones() {
         .unwrap();
     assert!(create_issue(&mut connection, draft("Desktop app")).is_err());
     assert!(preview_issue_move(&connection, &first.id, "Desktop app").is_err());
+    drop(connection);
     fs::remove_dir_all(root).unwrap();
 }
 
@@ -612,6 +615,7 @@ fn activity_cursor_keeps_equal_timestamp_entries_in_order() {
     let second = issue_activity_page(&connection, &issue.id, first.next_cursor.as_deref()).unwrap();
     assert_eq!(second.items.len(), 2);
     assert!(second.next_cursor.is_none());
+    drop(connection);
     std::fs::remove_dir_all(root).unwrap();
 }
 
@@ -1051,6 +1055,7 @@ fn comment_edits_update_search_and_removal_keeps_a_tombstone() {
         )
         .unwrap();
     assert_eq!(remaining_hits, 0);
+    drop(connection);
     fs::remove_dir_all(root).unwrap();
 }
 

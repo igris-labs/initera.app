@@ -704,6 +704,7 @@ fn project_mutation_receipt_replays_and_checks_version() {
     set_project_lifecycle_with_mutation(&mut connection, &project.id, "archive", Some(archive))
         .unwrap();
     assert_eq!(list_inactive_projects(&connection).unwrap().len(), 1);
+    drop(connection);
     fs::remove_dir_all(root).unwrap();
 }
 
@@ -821,6 +822,7 @@ fn removed_milestone_clears_links_and_restores_only_eligible_issues() {
         )
         .unwrap();
     assert_eq!(restored, old_milestone);
+    drop(connection);
     fs::remove_dir_all(root).unwrap();
 }
 
@@ -1276,5 +1278,6 @@ fn disabling_concurrent_timers_requires_resolution() {
         )
         .unwrap();
     save_preferences(&mut connection, &preferences).unwrap();
+    drop(connection);
     fs::remove_dir_all(root).unwrap();
 }

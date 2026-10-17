@@ -98,7 +98,9 @@ pub(crate) fn stage_image(
     let final_path = media_path(root, &id, mime)?;
     let saved = (|| {
         fs::write(&temporary, saved_bytes).map_err(|_| "Cannot stage image.".to_owned())?;
-        fs::File::open(&temporary)
+        fs::OpenOptions::new()
+            .write(true)
+            .open(&temporary)
             .and_then(|file| file.sync_all())
             .map_err(|_| "Cannot secure staged image.".to_owned())?;
         fs::rename(&temporary, &final_path).map_err(|_| "Cannot save image.".to_owned())

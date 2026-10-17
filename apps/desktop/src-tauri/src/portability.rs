@@ -30,15 +30,18 @@ fn restore_receipt_path(root: &Path) -> PathBuf {
     root.join("recovery").join("restore-receipt.json")
 }
 
+fn sync_file(path: &Path) -> std::io::Result<()> {
+    // FlushFileBuffers needs a writable handle on Windows.
+    fs::OpenOptions::new().write(true).open(path)?.sync_all()
+}
+
 fn write_restore_receipt(root: &Path, receipt: &PendingRestoreReceipt) -> Result<(), String> {
     let path = restore_receipt_path(root);
     let temporary = path.with_extension("json.tmp");
     let bytes =
         serde_json::to_vec(receipt).map_err(|_| "Cannot encode restore receipt.".to_owned())?;
     fs::write(&temporary, bytes).map_err(|_| "Cannot stage restore receipt.".to_owned())?;
-    fs::File::open(&temporary)
-        .and_then(|file| file.sync_all())
-        .map_err(|_| "Cannot secure restore receipt.".to_owned())?;
+    sync_file(&temporary).map_err(|_| "Cannot secure restore receipt.".to_owned())?;
     fs::rename(&temporary, &path).map_err(|_| "Cannot save restore receipt.".to_owned())
 }
 
@@ -243,9 +246,7 @@ fn create_backup(root: &Path) -> Result<BackupEntry, String> {
         let bytes = fs::read(&snapshot).map_err(|_| "Cannot read backup snapshot.".to_owned())?;
         let archive = crate::portable_archive::encode(&bytes, &media)?;
         fs::write(&temporary, archive).map_err(|_| "Cannot write backup archive.".to_owned())?;
-        fs::File::open(&temporary)
-            .and_then(|file| file.sync_all())
-            .map_err(|_| "Cannot finish writing backup.".to_owned())?;
+        sync_file(&temporary).map_err(|_| "Cannot finish writing backup.".to_owned())?;
         fs::rename(&temporary, &final_path).map_err(|_| "Cannot finish backup.".to_owned())
     })();
     let _ = fs::remove_file(snapshot);
@@ -351,13 +352,9 @@ fn stage_restore(
             let destination = crate::media::media_path(&stage, &image.id, &image.mime)?;
             fs::write(&destination, &image.bytes)
                 .map_err(|_| "Cannot stage backup image.".to_owned())?;
-            fs::File::open(&destination)
-                .and_then(|file| file.sync_all())
-                .map_err(|_| "Cannot secure backup image.".to_owned())?;
+            sync_file(&destination).map_err(|_| "Cannot secure backup image.".to_owned())?;
         }
-        fs::File::open(&snapshot)
-            .and_then(|file| file.sync_all())
-            .map_err(|_| "Cannot secure backup snapshot.".to_owned())?;
+        sync_file(&snapshot).map_err(|_| "Cannot secure backup snapshot.".to_owned())?;
         Ok(())
     })();
 
@@ -375,9 +372,7 @@ fn prepare_restore(root: &Path, id: &str) -> Result<(), String> {
 
     let request = root.join("recovery").join("restore.requested");
     fs::write(&request, id).map_err(|_| "Cannot request backup restore.".to_owned())?;
-    fs::File::open(&request)
-        .and_then(|file| file.sync_all())
-        .map_err(|_| "Cannot secure backup restore request.".to_owned())
+    sync_file(&request).map_err(|_| "Cannot secure backup restore request.".to_owned())
 }
 
 pub(crate) fn apply_pending_restore(root: &Path) -> Result<(), String> {
@@ -407,9 +402,7 @@ pub(crate) fn apply_pending_restore(root: &Path) -> Result<(), String> {
         .backup(rusqlite::MAIN_DB, &recovery, None)
         .map_err(|_| "Cannot save recovery copy before restore.".to_owned())?;
     drop(connection);
-    fs::File::open(&recovery)
-        .and_then(|file| file.sync_all())
-        .map_err(|_| "Cannot secure recovery copy before restore.".to_owned())?;
+    sync_file(&recovery).map_err(|_| "Cannot secure recovery copy before restore.".to_owned())?;
     if previous_media.exists() {
         fs::remove_dir_all(&previous_media)
             .map_err(|_| "Cannot prepare media recovery folder.".to_owned())?;
@@ -426,9 +419,7 @@ pub(crate) fn apply_pending_restore(root: &Path) -> Result<(), String> {
 
     // Recovery inspects this marker after a crash and rolls forward or restores both DB and media.
     fs::write(&marker, &id).map_err(|_| "Cannot mark restore in progress.".to_owned())?;
-    fs::File::open(&marker)
-        .and_then(|file| file.sync_all())
-        .map_err(|_| "Cannot secure restore marker.".to_owned())?;
+    sync_file(&marker).map_err(|_| "Cannot secure restore marker.".to_owned())?;
     let old = root.join("recovery").join("restore-old.sqlite");
     if old.exists() {
         fs::remove_file(&old).map_err(|_| "Cannot prepare recovery folder.".to_owned())?;
@@ -632,9 +623,7 @@ fn import_portable(root: &Path, bytes: &[u8]) -> Result<(), String> {
     let final_path = root.join("backups").join(format!("{id}.zip"));
     fs::write(&temporary, canonical).map_err(|_| "Cannot stage imported backup.".to_owned())?;
     let result = (|| {
-        fs::File::open(&temporary)
-            .and_then(|file| file.sync_all())
-            .map_err(|_| "Cannot secure imported backup.".to_owned())?;
+        sync_file(&temporary).map_err(|_| "Cannot secure imported backup.".to_owned())?;
         fs::rename(&temporary, &final_path)
             .map_err(|_| "Cannot keep imported backup.".to_owned())?;
         prepare_restore(root, &id)
@@ -761,9 +750,8 @@ fn write_export(
     let temporary = parent.join(format!(".pm-app-export-{}.part", Uuid::new_v4()));
     let result = (|| {
         write(&temporary)?;
+        sync_file(&temporary).map_err(|_| "Cannot secure export.".to_owned())?;
         let file = fs::File::open(&temporary).map_err(|_| "Cannot inspect export.".to_owned())?;
-        file.sync_all()
-            .map_err(|_| "Cannot secure export.".to_owned())?;
         if file
             .metadata()
             .map_err(|_| "Cannot inspect export.".to_owned())?
@@ -783,8 +771,10 @@ fn write_export(
                     .map_err(|_| "Export entry checksum failed.".to_owned())?;
             }
         }
+        drop(archive);
         fs::rename(&temporary, path)
             .map_err(|_| "Cannot save export at chosen location.".to_owned())?;
+        #[cfg(not(windows))]
         fs::File::open(parent)
             .and_then(|directory| directory.sync_all())
             .map_err(|_| "Cannot secure export folder.".to_owned())?;
@@ -1037,6 +1027,7 @@ mod tests {
             )
             .unwrap();
         assert!(count >= 12);
+        drop(connection);
         fs::remove_dir_all(root).unwrap();
     }
 
