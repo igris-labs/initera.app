@@ -409,8 +409,18 @@ mod tests {
         fs::write(&abandoned, &bytes).unwrap();
         let old = fs::FileTimes::new()
             .set_modified(SystemTime::now() - Duration::from_secs(2 * 24 * 60 * 60));
-        fs::File::open(&orphan).unwrap().set_times(old).unwrap();
-        fs::File::open(&abandoned).unwrap().set_times(old).unwrap();
+        fs::OpenOptions::new()
+            .write(true)
+            .open(&orphan)
+            .unwrap()
+            .set_times(old)
+            .unwrap();
+        fs::OpenOptions::new()
+            .write(true)
+            .open(&abandoned)
+            .unwrap()
+            .set_times(old)
+            .unwrap();
 
         cleanup_media(&root, &connection).unwrap();
         assert!(media_path(&root, &kept.id, "image/png").unwrap().exists());
