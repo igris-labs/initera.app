@@ -11,6 +11,12 @@
     "core:window:allow-toggle-maximize",
     "core:window:allow-start-dragging",
     "core:window:allow-close",
+    {
+      "identifier": "opener:allow-open-url",
+      "allow": [
+        { "url": "https://github.com/igris-labs/initera.app/issues/new" }
+      ]
+    },
     "updater:default",
     "process:allow-restart"
   ]

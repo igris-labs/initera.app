@@ -13,9 +13,11 @@ import { usePreferencesStore } from '../../stores/preferences';
 import { defaultProjectIcon, iconColor } from '../../lib/icon-presentation';
 import { usesNativeStorage } from '../../lib/workspace-storage';
 import { notifications } from '../../lib/notifications';
+import { checkForUpdates } from '../../lib/app-updater';
 import { shortcutHint } from '../../lib/app-shortcuts';
 import ShortcutTooltip from './ShortcutTooltip.vue';
 import RunningTimer from './RunningTimer.vue';
+import AppAboutDialog from './AppAboutDialog.vue';
 import { Button } from '../ui/button';
 import { Dialog } from '../ui/dialog';
 import { DropdownMenu } from '../ui/dropdown-menu';
@@ -50,6 +52,7 @@ const projectDialogLoaded = ref(false);
 const workspaceDialogOpen = ref(false);
 const newWorkspaceName = ref('');
 const workspaceError = ref('');
+const aboutOpen = ref(false);
 
 const workspaceItems = computed<MenuItem[]>(() =>
   workspace.workspaces.map((item) => ({
@@ -135,7 +138,7 @@ watch(projectDialogOpen, (value) => {
 
 const { theme, changeTheme } = useThemeChange();
 
-const helpItems = computed<MenuItem[]>(() => [
+const accountItems = computed<MenuItem[]>(() => [
   {
     label: 'Command bar',
     value: 'command-bar',
@@ -160,7 +163,51 @@ const helpItems = computed<MenuItem[]>(() => [
         changeTheme(value, document.querySelector('[aria-label="Help and settings"]')),
     })),
   },
+  {
+    label: 'Help',
+    value: 'help',
+    slot: 'help',
+    children: [
+      {
+        label: 'About',
+        value: 'about',
+        slot: 'about',
+        onSelect: () => (aboutOpen.value = true),
+      },
+      {
+        label: 'Check for updates',
+        value: 'check-for-updates',
+        slot: 'check-for-updates',
+        onSelect: () => void checkForUpdates(true),
+      },
+      {
+        label: 'Submit Issue & Feedback',
+        value: 'submit-feedback',
+        slot: 'submit-feedback',
+        onSelect: () => void openFeedback(),
+      },
+    ],
+  },
 ]);
+
+async function openFeedback() {
+  const url = 'https://github.com/igris-labs/initera.app/issues/new';
+  if (!usesNativeStorage) {
+    window.open(url, '_blank', 'noopener,noreferrer');
+    return;
+  }
+
+  try {
+    const { openUrl } = await import('@tauri-apps/plugin-opener');
+    await openUrl(url);
+  } catch (error) {
+    notifications.add({
+      title: 'Could not open GitHub Issues',
+      description: String(error),
+      type: 'error',
+    });
+  }
+}
 
 const projectCounts = computed(() =>
   Object.fromEntries(
@@ -415,7 +462,7 @@ async function loadMoreSidebarProjects() {
     <template #footer>
       <RunningTimer v-if="usesNativeStorage" />
       <DropdownMenu
-        :items="helpItems"
+        :items="accountItems"
         side="top"
         align="start"
         :teleport="false"
@@ -464,6 +511,30 @@ async function loadMoreSidebarProjects() {
             <span class="flex-1">Theme</span>
           </span>
         </template>
+        <template #help>
+          <span class="flex w-full items-center gap-2">
+            <Icon name="i-tabler-bulb" class="size-4 text-foreground-muted" />
+            <span class="flex-1">Help</span>
+          </span>
+        </template>
+        <template #about>
+          <span class="flex w-full items-center gap-2">
+            <Icon name="i-tabler-info-circle" class="size-4 text-foreground-muted" />
+            <span class="flex-1">About</span>
+          </span>
+        </template>
+        <template #check-for-updates>
+          <span class="flex w-full items-center gap-2">
+            <Icon name="i-tabler-refresh" class="size-4 text-foreground-muted" />
+            <span class="flex-1">Check for updates</span>
+          </span>
+        </template>
+        <template #submit-feedback>
+          <span class="flex w-full items-center gap-2">
+            <Icon name="i-tabler-bug" class="size-4 text-foreground-muted" />
+            <span class="flex-1">Submit Issue &amp; Feedback</span>
+          </span>
+        </template>
         <template
           v-for="value in ['system', 'light', 'dark'] as const"
           :key="value"
@@ -485,6 +556,7 @@ async function loadMoreSidebarProjects() {
           </span>
         </template>
       </DropdownMenu>
+      <AppAboutDialog v-model:open="aboutOpen" />
     </template>
   </Sidebar>
 </template>

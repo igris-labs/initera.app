@@ -4,7 +4,6 @@ import { nextTick, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useThemeChange } from '../../composables/useThemeChange';
 import SettingsBackups from '../../components/settings/SettingsBackups.vue';
-import SettingsAbout from '../../components/settings/SettingsAbout.vue';
 import SettingsLabels from '../../components/settings/SettingsLabels.vue';
 import SettingsWorkflow from '../../components/settings/SettingsWorkflow.vue';
 import { usePreferencesStore } from '../../stores/preferences';
@@ -339,7 +338,6 @@ function updateAppearance(value: string, details: { event?: Event }) {
           counted.
         </p>
       </section>
-      <SettingsAbout />
     </div>
     <Dialog v-model:open="concurrentDialogOpen" title="Choose running timer" size="sm">
       <template #body>

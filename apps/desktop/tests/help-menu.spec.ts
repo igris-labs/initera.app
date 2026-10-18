@@ -3,6 +3,22 @@ import { prepareWorkspace } from './support/workspace';
 
 test.beforeEach(prepareWorkspace);
 
+test('Help opens the About dialog outside Settings', async ({ page }) => {
+  await page.goto('/#/issues');
+  await page.getByRole('button', { name: 'Help and settings' }).click();
+  await page.getByRole('menuitem', { name: 'Help' }).click();
+  await page.getByRole('menuitem', { name: 'About' }).click();
+
+  const about = page.getByRole('dialog', { name: 'About Initera' });
+  await expect(about).toBeVisible();
+  await expect(about).toContainText('Rahul Vashishtha');
+  await expect(about).toContainText('0.1.0');
+
+  await about.getByRole('button', { name: 'Close', exact: true }).click();
+  await page.goto('/#/settings');
+  await expect(page.getByRole('heading', { name: 'About Initera' })).toHaveCount(0);
+});
+
 test('help menu opens settings, changes appearance, and launches commands', async ({ page }) => {
   await page.goto('/#/issues');
   const account = page.getByRole('button', { name: 'Help and settings' });
