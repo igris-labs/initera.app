@@ -7,6 +7,17 @@ test('Help opens the About dialog outside Settings', async ({ page }) => {
   await page.goto('/#/issues');
   await page.getByRole('button', { name: 'Help and settings' }).click();
   await page.getByRole('menuitem', { name: 'Help' }).click();
+  const submenu = page.locator('.akaza-menu-submenu-content');
+  const parent = page.locator('.akaza-menu-content').first();
+  const [submenuBounds, parentBounds] = await Promise.all([
+    submenu.boundingBox(),
+    parent.boundingBox(),
+  ]);
+  expect(submenuBounds!.x - (parentBounds!.x + parentBounds!.width)).toBeGreaterThanOrEqual(7);
+  await expect(page.getByRole('menuitem', { name: 'Submit Issue & Feedback' })).toHaveCSS(
+    'white-space',
+    'nowrap',
+  );
   await page.getByRole('menuitem', { name: 'About' }).click();
 
   const about = page.getByRole('dialog', { name: 'About Initera' });

@@ -509,12 +509,14 @@ async function loadMoreSidebarProjects() {
           <span class="flex w-full items-center gap-2">
             <Icon name="i-tabler-palette" class="size-4 text-foreground-muted" />
             <span class="flex-1">Theme</span>
+            <Icon name="i-tabler-chevron-right" class="size-3.5 text-foreground-muted" />
           </span>
         </template>
         <template #help>
           <span class="flex w-full items-center gap-2">
             <Icon name="i-tabler-bulb" class="size-4 text-foreground-muted" />
             <span class="flex-1">Help</span>
+            <Icon name="i-tabler-chevron-right" class="size-3.5 text-foreground-muted" />
           </span>
         </template>
         <template #about>
