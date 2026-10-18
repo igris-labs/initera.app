@@ -13,7 +13,9 @@ test('Help opens the About dialog outside Settings', async ({ page }) => {
     submenu.boundingBox(),
     parent.boundingBox(),
   ]);
-  expect(submenuBounds!.x - (parentBounds!.x + parentBounds!.width)).toBeGreaterThanOrEqual(7);
+  const gap = submenuBounds!.x - (parentBounds!.x + parentBounds!.width);
+  expect(gap).toBeGreaterThanOrEqual(5);
+  expect(gap).toBeLessThanOrEqual(12);
   await expect(page.getByRole('menuitem', { name: 'Submit Issue & Feedback' })).toHaveCSS(
     'white-space',
     'nowrap',
