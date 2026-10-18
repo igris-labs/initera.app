@@ -13,6 +13,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
+      # Each platform adds its entry to the same latest.json release asset.
+      max-parallel: 1
       matrix:
         include:
           - os: macos-latest
@@ -47,10 +49,34 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           APPLE_SIGNING_IDENTITY: ${{ runner.os == 'macOS' && '-' || '' }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
         with:
           projectPath: apps/desktop
           tauriScript: pnpm exec tauri
           tagName: ${{ github.ref_name }}
           releaseName: Initera ${{ github.ref_name }}
           releaseDraft: true
+          includeUpdaterJson: true
           args: --bundles ${{ matrix.bundles }}
+
+  verify-updater:
+    name: Verify update manifest
+    needs: bundles
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Download update manifest
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release download "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --pattern latest.json --dir "$RUNNER_TEMP"
+      - name: Check version and signed platform entries
+        env:
+          RELEASE_VERSION: ${{ github.ref_name }}
+        run: |
+          jq -e --arg version "${RELEASE_VERSION#v}" '
+            .version == $version
+            and ([.platforms | keys[] | select(startswith("darwin-") and endswith("-app"))] | length > 0)
+            and ([.platforms | keys[] | select(startswith("windows-") and endswith("-nsis"))] | length > 0)
+            and ([.platforms | keys[] | select(startswith("linux-") and endswith("-appimage"))] | length > 0)
+            and ([.platforms | keys[] | select(startswith("linux-") and endswith("-deb"))] | length > 0)
+            and all(.platforms[]; (.url | length > 0) and (.signature | length > 0))
+          ' "$RUNNER_TEMP/latest.json"

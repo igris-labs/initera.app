@@ -25,3 +25,8 @@ pub fn storage_finish_close(app: AppHandle, force: bool) -> Result<(), String> {
     CLOSE_ALLOWED.store(true, Ordering::SeqCst);
     Ok(())
 }
+
+#[api_contract_macros::command]
+pub fn storage_prepare_update(app: AppHandle) -> Result<(), String> {
+    crate::flush_timers_before_exit(&app)
+}

@@ -28,6 +28,7 @@
   },
   "bundle": {
     "active": true,
+    "createUpdaterArtifacts": true,
     "targets": "all",
     "publisher": "Rahul Vashishtha",
     "copyright": "Copyright © 2026 Rahul Vashishtha",
@@ -41,6 +42,13 @@
     ],
     "android": {
       "debugApplicationIdSuffix": ".debug"
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDgzQjMyOTczNDZFRUY3RjkKUldUNTkrNUdjeW16ZzZGbWZ3Rk5YYmhxcE1tb1VRS1pDdytCRWFub2FuTmw5ZUlkOW4vZXdodzAK",
+      "requireSignedVersion": true,
+      "endpoints": ["https://github.com/igris-labs/initera.app/releases/latest/download/latest.json"]
     }
   }
 }

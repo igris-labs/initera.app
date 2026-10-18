@@ -7,11 +7,13 @@ import { storeToRefs } from 'pinia';
 import { computed, nextTick, onMounted, onUnmounted, ref, watch, watchEffect } from 'vue';
 import AppShell from './components/common/AppShell.vue';
 import AppTitlebar from './components/common/AppTitlebar.vue';
+import AppUpdater from './components/common/AppUpdater.vue';
 import WorkspaceSetup from './components/common/WorkspaceSetup.vue';
 import { Toast } from './components/ui/toast';
 import { Button } from './components/ui/button';
 import { Dialog } from './components/ui/dialog';
 import { runRestoreCatchup } from './lib/backup-storage';
+import { checkForUpdates } from './lib/app-updater';
 import { invoke } from './lib/native-invoke';
 import { flushPendingWrites } from './lib/pending-writes';
 import { notifications, notifySuccess } from './lib/notifications';
@@ -239,6 +241,14 @@ const workspaceViewReady = computed(
         projects.ready &&
         views.ready)),
 );
+
+let checkedForUpdates = false;
+
+watch(workspaceViewReady, (ready) => {
+  if (!ready || !workspace.configured || checkedForUpdates || !import.meta.env.PROD) return;
+  checkedForUpdates = true;
+  void checkForUpdates();
+});
 
 watch(workspaceViewReady, async (ready) => {
   // Keep the transition visible through data bootstrap and the first painted workspace frame.
@@ -471,5 +481,6 @@ watch(
       </template>
     </Dialog>
     <Toast :manager="notifications" position="bottom-right" />
+    <AppUpdater />
   </MotionConfig>
 </template>

@@ -3,6 +3,7 @@ import { getVersion } from '@tauri-apps/api/app';
 import { onMounted, ref } from 'vue';
 import initeraSymbol from '../../assets/initera-symbol.svg';
 import { usesNativeStorage } from '../../lib/workspace-storage';
+import { checkForUpdates, updateChecking } from '../../lib/app-updater';
 import { version as packageVersion } from '../../../package.json';
 import licenseText from '../../../../../LICENSE?raw';
 import { Button } from '../ui/button';
@@ -62,6 +63,15 @@ onMounted(async () => {
     <p class="mt-3 text-xs text-foreground-dimmed">
       MIT permits use, modification, and distribution. The software is provided without warranty.
     </p>
+    <Button
+      v-if="usesNativeStorage"
+      class="mt-3"
+      label="Check for updates"
+      variant="outline"
+      size="sm"
+      :disabled="updateChecking"
+      @click="checkForUpdates(true)"
+    />
 
     <Dialog v-model:open="licenseOpen" title="MIT License" size="md">
       <template #body>

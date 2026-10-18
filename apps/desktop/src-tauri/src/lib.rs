@@ -167,8 +167,11 @@ pub fn run() {
             }
         }))
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
             shutdown::storage_finish_close_api,
+            shutdown::storage_prepare_update_api,
             api_contract::storage_resolve_issue_entity_ids_api,
             drafts::storage_load_draft_api,
             drafts::storage_save_draft_api,
