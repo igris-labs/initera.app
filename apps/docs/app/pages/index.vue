@@ -6,11 +6,12 @@ import { Icon } from '../components/ui/icon';
 definePageMeta({ layout: 'marketing' });
 
 useSeoMeta({
-  title: 'Initera — Keep work moving',
+  title: 'Initera | Project planning and issue tracking',
   description:
-    'Plan projects, work through issues, and keep a clear record of progress in one desktop app.',
-  ogTitle: 'Initera — Keep work moving',
-  ogDescription: 'Projects, issues, cycles, and time tracking in one desktop app.',
+    'Plan projects with milestones and cycles. Track issues, related work, and progress in a desktop app.',
+  ogTitle: 'Initera | Project planning and issue tracking',
+  ogDescription:
+    'Plan projects with milestones and cycles. Track issues and progress on your desktop.',
 });
 
 const primaryLink = buttonVariants({ variant: 'solid', size: 'lg' });
@@ -104,22 +105,19 @@ onUnmounted(() => {
         />
       </div>
       <div class="relative max-w-[69rem]">
-        <p :class="kicker" data-enter>PROJECTS · ISSUES · CYCLES</p>
+        <p :class="kicker" data-enter>OPEN SOURCE · LOCAL FIRST</p>
         <h1
           id="hero-title"
           class="mt-6 max-w-[69rem] text-balance text-[clamp(2.4rem,10vw,3rem)] leading-[1.04] font-semibold tracking-[-0.08em] text-foreground-highlighted sm:text-[clamp(3.4rem,6.3vw,6.7rem)]"
           data-enter
         >
-          Keep the work moving.<br /><span class="text-foreground-muted"
-            >Keep the details close.</span
-          >
+          Plan projects and track issues in one desktop app.
         </h1>
         <p
           class="mt-8 max-w-[39rem] text-[clamp(1rem,1.35vw,1.12rem)] leading-relaxed text-foreground-muted"
           data-enter
         >
-          Plan the project, pick the next issue, and see what changed. Initera keeps the work and
-          its context together on your desktop.
+          Set milestones and cycles. Open an issue to see its owner, related work, and history.
         </p>
         <div class="mt-8 flex flex-wrap gap-3" data-enter>
           <NuxtLink
@@ -136,12 +134,6 @@ onUnmounted(() => {
           </NuxtLink>
         </div>
       </div>
-      <div
-        aria-hidden="true"
-        class="absolute right-6 bottom-32 hidden font-mono text-[0.6rem] tracking-[0.12em] text-foreground-dimmed [writing-mode:vertical-rl] lg:block"
-      >
-        BUILT FOR THE DESKTOP / MADE FOR THE WORK
-      </div>
     </section>
 
     <div :class="[shell, 'pb-28 lg:pb-44']" data-reveal>
@@ -156,9 +148,6 @@ onUnmounted(() => {
           class="block h-auto w-[155%] max-w-none sm:w-full"
         />
       </figure>
-      <p class="mt-3 text-left text-xs text-foreground-dimmed sm:text-right">
-        An issue list with enough detail to decide what comes next.
-      </p>
     </div>
 
     <section
@@ -167,44 +156,39 @@ onUnmounted(() => {
       aria-labelledby="features-title"
     >
       <div data-reveal>
-        <p :class="kicker">THE WORK, IN CONTEXT</p>
-        <h2 id="features-title" :class="heading">A place for every part of the plan.</h2>
+        <h2 id="features-title" :class="[heading, 'mt-0']">How the work is organized</h2>
       </div>
       <div data-reveal>
-        <article class="grid grid-cols-[2rem_minmax(0,1fr)] gap-4 border-t border-outline py-7">
-          <span class="pt-1 font-mono text-[0.7rem] text-foreground-dimmed">01</span>
+        <article class="border-t border-outline py-7">
           <div>
             <h3 class="text-lg font-semibold tracking-tight text-foreground-highlighted">Issues</h3>
             <p class="mt-2 max-w-md text-sm leading-relaxed text-foreground-muted">
-              Track the task, its status, and who owns it. Add sub-issues or dependencies when one
-              line is not enough.
+              Track status, priority, and ownership. Link related issues, or break larger work into
+              sub-issues.
             </p>
             <NuxtLink to="/issues/issues" :class="textLink"
               >Explore issues <Icon name="i-tabler-arrow-right" size="sm"
             /></NuxtLink>
           </div>
         </article>
-        <article class="grid grid-cols-[2rem_minmax(0,1fr)] gap-4 border-t border-outline py-7">
-          <span class="pt-1 font-mono text-[0.7rem] text-foreground-dimmed">02</span>
+        <article class="border-t border-outline py-7">
           <div>
             <h3 class="text-lg font-semibold tracking-tight text-foreground-highlighted">
               Projects
             </h3>
             <p class="mt-2 max-w-md text-sm leading-relaxed text-foreground-muted">
-              Keep resources, milestones, updates, and linked issues beside the goal they serve.
+              Set milestones, add resources, and follow the issues and updates tied to a project.
             </p>
             <NuxtLink to="/projects/projects" :class="textLink"
               >Explore projects <Icon name="i-tabler-arrow-right" size="sm"
             /></NuxtLink>
           </div>
         </article>
-        <article class="grid grid-cols-[2rem_minmax(0,1fr)] gap-4 border-y border-outline py-7">
-          <span class="pt-1 font-mono text-[0.7rem] text-foreground-dimmed">03</span>
+        <article class="border-y border-outline py-7">
           <div>
             <h3 class="text-lg font-semibold tracking-tight text-foreground-highlighted">Cycles</h3>
             <p class="mt-2 max-w-md text-sm leading-relaxed text-foreground-muted">
-              Give the next stretch of work a start and end. Review unfinished issues when the cycle
-              closes.
+              Plan work for a set period. At the end, decide what happens to unfinished issues.
             </p>
             <NuxtLink to="/planning/cycles" :class="textLink"
               >Explore cycles <Icon name="i-tabler-arrow-right" size="sm"
@@ -225,13 +209,12 @@ onUnmounted(() => {
         ]"
       >
         <div data-reveal>
-          <p :class="kicker">PROJECTS</p>
-          <h2 id="project-title" :class="[heading, 'max-w-[31rem]']">
-            The reason behind the issue stays in view.
+          <h2 id="project-title" :class="[heading, 'mt-0 max-w-[31rem]']">
+            Review milestones alongside issue progress.
           </h2>
           <p class="mt-6 max-w-[31rem] text-[0.94rem] leading-relaxed text-foreground-muted">
-            Open a project and see its description, milestones, resources, updates, and issue
-            progress in one place.
+            Open a project to review its description, milestones, resources, updates, and issue
+            progress.
           </p>
           <NuxtLink to="/projects/projects" :class="textLink"
             >See how projects work <Icon name="i-tabler-arrow-right" size="sm"
@@ -257,12 +240,10 @@ onUnmounted(() => {
       aria-labelledby="workflow-title"
     >
       <div class="max-w-[49rem]" data-reveal>
-        <p :class="kicker">STAY IN FLOW</p>
-        <h2 id="workflow-title" :class="heading">
-          Find the next move without leaving the keyboard.
-        </h2>
+        <h2 id="workflow-title" :class="[heading, 'mt-0']">Search and update from the keyboard.</h2>
         <p class="mt-6 max-w-[31rem] text-[0.94rem] leading-relaxed text-foreground-muted">
-          Search for an issue or project, jump to a view, and run actions from the command bar.
+          Type a title or identifier to find an issue. Use the same bar to open projects, switch
+          views, and run actions.
         </p>
         <NuxtLink to="/reference/command-bar" :class="textLink"
           >See the command bar <Icon name="i-tabler-arrow-right" size="sm"
@@ -289,10 +270,7 @@ onUnmounted(() => {
       aria-labelledby="final-title"
       data-reveal
     >
-      <p :class="kicker">READY WHEN YOU ARE</p>
-      <h2 id="final-title" :class="[heading, 'mb-8']">
-        Start with one issue.<br />Build from there.
-      </h2>
+      <h2 id="final-title" :class="[heading, 'mb-8']">Get Initera for your desktop.</h2>
       <NuxtLink
         to="/download"
         :class="[primaryLink, 'inline-flex min-h-11 gap-2 px-4 text-[0.83rem] no-underline']"

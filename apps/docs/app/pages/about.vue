@@ -1,63 +1,105 @@
 <script setup lang="ts">
-import { Icon } from '../components/ui/icon';
-
 definePageMeta({ layout: 'marketing' });
 
 useSeoMeta({
   title: 'About Initera',
-  description:
-    'Initera is a local desktop project management app by Rahul Vashishtha at Igris Labs.',
+  description: 'See how Initera keeps projects, issues, cycles, and time records together.',
 });
 </script>
 
 <template>
-  <div class="mx-auto min-h-[65vh] w-full max-w-[82rem] px-4 py-24 sm:px-6 lg:py-36">
-    <div class="max-w-[54rem]">
+  <div class="mx-auto w-full max-w-[82rem] px-4 py-20 sm:px-6 lg:py-28">
+    <div class="max-w-[46rem]">
       <p class="text-[0.7rem] font-semibold tracking-[0.14em] text-foreground-muted uppercase">
         ABOUT INITERA
       </p>
       <h1
-        class="mt-7 max-w-[55rem] text-balance text-[clamp(3.2rem,13vw,5rem)] leading-none font-semibold tracking-[-0.085em] text-foreground-highlighted sm:text-[clamp(3.5rem,6.5vw,6.5rem)]"
+        class="mt-7 text-balance text-[clamp(2.2rem,5vw,3.5rem)] leading-[1.08] font-semibold tracking-[-0.07em] text-foreground-highlighted"
       >
-        Made by Rahul Vashishtha.
+        See the whole project, down to the next issue.
       </h1>
-      <p class="mt-8 max-w-[42rem] text-[1.05rem] leading-relaxed text-foreground-muted">
-        Initera is a desktop project manager from Igris Labs, Rahul's personal laboratory. It puts
-        projects, issues, cycles, and time records in one place on your computer.
+      <p class="mt-7 max-w-[42rem] text-base leading-relaxed text-foreground-muted">
+        Open a project to see its milestones, linked issues, and updates. Open an issue to see its
+        status, related work, and recent activity. You can keep that context on your computer
+        without creating an online account.
       </p>
     </div>
 
-    <div class="mt-20 grid gap-14 border-t border-outline pt-12 lg:grid-cols-[0.8fr_1fr] lg:gap-24">
-      <div
-        class="grid min-h-72 place-items-center rounded-[0.6rem] border border-outline bg-muted lg:min-h-[26rem]"
-        aria-hidden="true"
-      >
-        <img
-          src="/initera-symbol.svg"
-          alt=""
-          class="w-[min(30%,9rem)] dark:brightness-0 dark:invert"
+    <div
+      class="mt-16 grid items-start gap-12 border-t border-outline pt-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20"
+    >
+      <figure class="overflow-hidden rounded-[0.6rem] border border-outline bg-muted">
+        <NuxtImg
+          src="/images/app/project-overview.png"
+          alt="Initera project overview with milestones, updates, and linked issues"
+          width="1440"
+          height="900"
+          sizes="100vw lg:720px"
+          class="block h-auto w-full"
         />
+      </figure>
+      <div class="space-y-8">
+        <section>
+          <h2 class="text-lg font-semibold tracking-tight text-foreground-highlighted">
+            Keep the plan with the work
+          </h2>
+          <p class="mt-3 text-sm leading-relaxed text-foreground-muted">
+            Give a project its milestones, resources, and updates. Link issues to it so you can see
+            the work behind each goal.
+          </p>
+        </section>
+        <section>
+          <h2 class="text-lg font-semibold tracking-tight text-foreground-highlighted">
+            Make the next step clear
+          </h2>
+          <p class="mt-3 text-sm leading-relaxed text-foreground-muted">
+            Break issues into smaller tasks, connect related work, and plan a cycle. Search and
+            saved views help you get back to what matters today.
+          </p>
+        </section>
+        <section>
+          <h2 class="text-lg font-semibold tracking-tight text-foreground-highlighted">
+            Keep your own copy
+          </h2>
+          <p class="mt-3 text-sm leading-relaxed text-foreground-muted">
+            Your work lives on your computer. Create a backup or export a copy when you need one.
+            Initera is open source under the MIT License.
+          </p>
+        </section>
+        <div class="flex flex-wrap gap-x-6 gap-y-2 text-xs font-semibold">
+          <NuxtLink
+            to="/getting-started/quick-start"
+            class="text-foreground-highlighted underline underline-offset-4"
+          >
+            Read the guide
+          </NuxtLink>
+          <NuxtLink to="/download" class="text-foreground-highlighted underline underline-offset-4">
+            Download Initera
+          </NuxtLink>
+        </div>
       </div>
-      <div>
-        <h2 class="text-[1.7rem] font-semibold tracking-[-0.05em] text-foreground-highlighted">
-          What it keeps together.
-        </h2>
-        <p class="mt-5 max-w-[39rem] text-sm leading-loose text-foreground-muted">
-          Start with an issue. Connect it to a project when it needs a larger plan. Add a cycle when
-          work needs a time frame. The app keeps the record close to the work, including updates,
-          comments, and time entries.
-        </p>
-        <p class="mt-5 max-w-[39rem] text-sm leading-loose text-foreground-muted">
-          Initera uses Vue, Tauri, and SQLite. Your work stays on your computer unless you export a
-          backup. The project is available under the MIT License.
-        </p>
-        <NuxtLink
-          to="/reference/about"
-          class="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-foreground-highlighted no-underline hover:underline underline-offset-4"
+    </div>
+
+    <div class="mt-20 border-t border-outline pt-8 text-sm text-foreground-muted">
+      <p class="font-medium text-foreground-highlighted">About the author</p>
+      <p class="mt-2">
+        Created by
+        <a
+          href="https://rahulv.dev"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="underline underline-offset-4"
+          >Rahul Vashishtha</a
         >
-          Product and license details <Icon name="i-tabler-arrow-right" size="sm" />
-        </NuxtLink>
-      </div>
+        at
+        <a
+          href="https://igrislabs.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="underline underline-offset-4"
+          >Igris Labs</a
+        >.
+      </p>
     </div>
   </div>
 </template>

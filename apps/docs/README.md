@@ -1,6 +1,6 @@
 # Initera website and documentation
 
-This Nuxt site contains the Initera website and user guide. Rahul Vashishtha writes and maintains the project under Igris Labs, his personal laboratory.
+This Nuxt site contains the Initera website and user guide.
 
 ## Run locally
 
@@ -31,3 +31,5 @@ The capture test starts the Vite preview through Playwright and uses a fresh bro
 pnpm --filter docs exec nuxt typecheck
 pnpm --filter docs build
 ```
+
+Created by [Rahul Vashishtha](https://rahulv.dev) at [Igris Labs](https://igrislabs.com).

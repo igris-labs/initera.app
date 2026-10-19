@@ -159,15 +159,12 @@ function toggleTheme() {
         ]"
       >
         <span>© {{ new Date().getFullYear() }} Rahul Vashishtha · MIT License</span>
-        <span
-          >Made at
-          <a
-            href="https://igrislabs.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="underline underline-offset-4"
-            >Igris Labs</a
-          ></span
+        <a
+          href="https://igrislabs.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="underline underline-offset-4"
+          >Igris Labs</a
         >
       </div>
     </footer>

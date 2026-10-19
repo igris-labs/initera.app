@@ -2,7 +2,26 @@ name: Release checks
 
 on:
   push:
+    branches: [main]
+    paths:
+      - 'apps/desktop/**'
+      - 'package.json'
+      - 'pnpm-workspace.yaml'
+      - 'rust-toolchain.toml'
+      - 'eslint.config.mjs'
+      - '.oxfmtrc.json'
+      - '.github/workflows/release-checks.yml'
+      - '.github/workflows/release.yml'
   pull_request:
+    paths:
+      - 'apps/desktop/**'
+      - 'package.json'
+      - 'pnpm-workspace.yaml'
+      - 'rust-toolchain.toml'
+      - 'eslint.config.mjs'
+      - '.oxfmtrc.json'
+      - '.github/workflows/release-checks.yml'
+      - '.github/workflows/release.yml'
   workflow_dispatch:
 
 jobs:
