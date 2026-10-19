@@ -33,7 +33,7 @@ test('Help opens the About dialog outside Settings', async ({ page }) => {
     'href',
     'https://rahulv.dev',
   );
-  await expect(about).toContainText('0.1.0');
+  await expect(about).toContainText('0.1.1');
 
   await about.getByRole('button', { name: 'MIT License' }).click();
   const license = page.getByRole('dialog', { name: 'MIT License' });

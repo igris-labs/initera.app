@@ -467,7 +467,7 @@ async function loadMoreSidebarProjects() {
         align="start"
         :teleport="false"
         size="sm"
-        class="w-full min-w-0"
+        class="w-max min-w-full max-w-[calc(100dvw-1rem)]"
       >
         <template #default="{ toggle, triggerProps }">
           <button
@@ -492,7 +492,7 @@ async function loadMoreSidebarProjects() {
         <template #command-bar>
           <span class="flex w-full items-center gap-2">
             <Icon name="i-tabler-command" class="size-4 text-foreground-muted" />
-            <span class="flex-1">Command bar</span>
+            <span class="flex-1 whitespace-nowrap">Command bar</span>
             <kbd
               class="rounded-md border border-outline bg-muted px-1.5 py-0.5 text-xs font-medium whitespace-nowrap text-foreground-highlighted"
               >{{ shortcutHint('commandBar') }}</kbd

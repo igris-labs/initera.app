@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { isTauri } from '@tauri-apps/api/core';
 import { getCurrentWindow } from '@tauri-apps/api/window';
+import { onMounted, onUnmounted, ref } from 'vue';
 import initeraSymbol from '../../assets/initera-symbol.svg';
 import { Button } from '../ui/button';
 import { Icon } from '../ui/icon';
@@ -16,21 +17,38 @@ defineProps<Props>();
 const sidebarWidth = sidebarWidths[sidebarDefaults.size];
 const isNative = isTauri();
 const macNative = isNative && /Macintosh/.test(navigator.userAgent);
+const maximized = ref(false);
+let unlistenResize: (() => void) | undefined;
+
+onMounted(async () => {
+  if (!isNative || macNative) return;
+
+  const window = getCurrentWindow();
+  maximized.value = await window.isMaximized();
+  unlistenResize = await window.onResized(async () => {
+    maximized.value = await window.isMaximized();
+  });
+});
+
+onUnmounted(() => unlistenResize?.());
 
 async function windowAction(action: 'close' | 'minimize' | 'maximize') {
   if (!isNative) return;
   const window = getCurrentWindow();
   if (action === 'close') await window.close();
   if (action === 'minimize') await window.minimize();
-  if (action === 'maximize') await window.toggleMaximize();
+  if (action === 'maximize') {
+    await window.toggleMaximize();
+    maximized.value = await window.isMaximized();
+  }
 }
 </script>
 
 <template>
   <header
     :class="[
-      'flex h-10 shrink-0 items-center bg-shell pr-2 text-xs leading-none text-foreground-muted select-none',
-      macNative ? 'pl-[84px]' : 'pl-2',
+      'flex h-10 shrink-0 items-center bg-shell text-xs leading-none text-foreground-muted select-none',
+      macNative ? 'pr-2 pl-[84px]' : isNative ? 'pl-2' : 'pr-2 pl-2',
     ]"
     data-tauri-drag-region
   >
@@ -73,14 +91,16 @@ async function windowAction(action: 'close' | 'minimize' | 'maximize') {
           color="neutral"
           variant="ghost"
           size="xs"
+          class="h-10 w-11 rounded-none"
           @click="windowAction('minimize')"
         />
         <Button
-          icon="i-tabler-maximize"
-          aria-label="Maximize window"
+          :icon="maximized ? 'i-tabler-squares' : 'i-tabler-square'"
+          :aria-label="maximized ? 'Restore window' : 'Maximize window'"
           color="neutral"
           variant="ghost"
           size="xs"
+          class="h-10 w-11 rounded-none"
           @click="windowAction('maximize')"
         />
         <Button
@@ -89,6 +109,7 @@ async function windowAction(action: 'close' | 'minimize' | 'maximize') {
           color="neutral"
           variant="ghost"
           size="xs"
+          class="h-10 w-11 rounded-none hover:bg-[#e81123] hover:text-white active:bg-[#c50f1f] active:text-white"
           @click="windowAction('close')"
         />
       </div>
