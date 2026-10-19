@@ -4,6 +4,7 @@ import { onMounted, ref } from 'vue';
 import initeraSymbol from '../../assets/initera-symbol.svg';
 import { usesNativeStorage } from '../../lib/workspace-storage';
 import { checkForUpdates, updateChecking } from '../../lib/app-updater';
+import { notifications } from '../../lib/notifications';
 import { version as packageVersion } from '../../../package.json';
 import licenseText from '../../../../../LICENSE?raw';
 import { Button } from '../ui/button';
@@ -12,6 +13,11 @@ import { Dialog } from '../ui/dialog';
 const version = ref(packageVersion);
 const open = defineModel<boolean>('open', { required: true });
 const licenseOpen = ref(false);
+const licenseParagraphs = licenseText
+  .trim()
+  .split(/\n\s*\n/)
+  .slice(1)
+  .map((paragraph) => paragraph.replace(/\s*\n\s*/g, ' '));
 
 onMounted(async () => {
   if (!usesNativeStorage) return;
@@ -21,6 +27,25 @@ onMounted(async () => {
     // The package version remains available if the native API cannot respond.
   }
 });
+
+async function openAuthorWebsite() {
+  const url = 'https://rahulv.dev';
+  if (!usesNativeStorage) {
+    window.open(url, '_blank', 'noopener,noreferrer');
+    return;
+  }
+
+  try {
+    const { openUrl } = await import('@tauri-apps/plugin-opener');
+    await openUrl(url);
+  } catch (error) {
+    notifications.add({
+      title: 'Could not open author website',
+      description: String(error),
+      type: 'error',
+    });
+  }
+}
 </script>
 
 <template>
@@ -40,7 +65,17 @@ onMounted(async () => {
         </div>
         <div class="flex items-baseline justify-between gap-4">
           <dt class="text-foreground-muted">Author</dt>
-          <dd class="text-foreground">Rahul Vashishtha</dd>
+          <dd>
+            <a
+              href="https://rahulv.dev"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-foreground underline-offset-2 hover:underline"
+              @click.prevent="openAuthorWebsite"
+            >
+              Rahul Vashishtha
+            </a>
+          </dd>
         </div>
         <div class="flex items-baseline justify-between gap-4">
           <dt class="text-foreground-muted">Powered by</dt>
@@ -74,9 +109,11 @@ onMounted(async () => {
 
   <Dialog v-model:open="licenseOpen" title="MIT License" size="md">
     <template #body>
-      <pre
-        class="max-h-[60vh] overflow-auto font-sans text-xs leading-relaxed whitespace-pre-wrap text-foreground-muted"
-        >{{ licenseText }}</pre>
+      <div
+        class="max-h-[60vh] space-y-4 overflow-y-auto text-xs leading-relaxed text-foreground-muted"
+      >
+        <p v-for="paragraph in licenseParagraphs" :key="paragraph">{{ paragraph }}</p>
+      </div>
     </template>
     <template #footer>
       <Button label="Close" size="sm" @click="licenseOpen = false" />

@@ -14,8 +14,12 @@ test('Help opens the About dialog outside Settings', async ({ page }) => {
     parent.boundingBox(),
   ]);
   const gap = submenuBounds!.x - (parentBounds!.x + parentBounds!.width);
-  expect(gap).toBeGreaterThanOrEqual(5);
-  expect(gap).toBeLessThanOrEqual(12);
+  expect(gap).toBeGreaterThanOrEqual(0);
+  expect(gap).toBeLessThanOrEqual(4);
+  const bottomOffset =
+    submenuBounds!.y + submenuBounds!.height - (parentBounds!.y + parentBounds!.height);
+  expect(bottomOffset).toBeGreaterThanOrEqual(-2);
+  expect(bottomOffset).toBeLessThanOrEqual(2);
   await expect(page.getByRole('menuitem', { name: 'Submit Issue & Feedback' })).toHaveCSS(
     'white-space',
     'nowrap',
@@ -25,7 +29,20 @@ test('Help opens the About dialog outside Settings', async ({ page }) => {
   const about = page.getByRole('dialog', { name: 'About Initera' });
   await expect(about).toBeVisible();
   await expect(about).toContainText('Rahul Vashishtha');
+  await expect(about.getByRole('link', { name: 'Rahul Vashishtha' })).toHaveAttribute(
+    'href',
+    'https://rahulv.dev',
+  );
   await expect(about).toContainText('0.1.0');
+
+  await about.getByRole('button', { name: 'MIT License' }).click();
+  const license = page.getByRole('dialog', { name: 'MIT License' });
+  await expect(license).toBeVisible();
+  await expect(license.locator('p').first()).toHaveText('Copyright (c) 2026 Rahul Vashishtha');
+  await expect(license.locator('p').nth(1)).toContainText(
+    'a copy of this software and associated documentation files',
+  );
+  await license.getByRole('button', { name: 'Close', exact: true }).click();
 
   await about.getByRole('button', { name: 'Close', exact: true }).click();
   await page.goto('/#/settings');
@@ -56,6 +73,7 @@ test('help menu opens settings, changes appearance, and launches commands', asyn
   await settings.click();
   await expect(page).toHaveURL(/#\/settings$/);
   await expect(page.getByRole('heading', { name: 'Settings' }).last()).toBeVisible();
+  await page.getByRole('tab', { name: 'Appearance' }).click();
   await page
     .getByRole('radiogroup', { name: 'Appearance' })
     .getByText('Light', { exact: true })

@@ -265,7 +265,7 @@ defineShortcuts(
             class="hidden size-3 text-foreground-dimmed sm:inline"
           />
           <h1 class="truncate font-medium text-foreground-highlighted">{{ location }}</h1>
-          <div class="ml-auto">
+          <div v-if="route.name !== 'settings'" class="ml-auto">
             <ShortcutTooltip label="Create issue" shortcut="createIssue">
               <Button
                 icon="i-tabler-plus"

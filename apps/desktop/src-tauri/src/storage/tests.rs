@@ -2,6 +2,41 @@ use super::*;
 use std::time::Instant;
 
 #[test]
+fn documents_root_moves_existing_workspace_and_media_to_initera() {
+    let documents = std::env::temp_dir().join(format!("initera-data-root-{}", Uuid::new_v4()));
+    let legacy = documents.join(LEGACY_DATA_FOLDER);
+    let mut connection = open_database(&legacy).unwrap();
+    save_identity(&mut connection, "Tester", "Workspace").unwrap();
+    drop(connection);
+    fs::write(legacy.join("media/image.png"), b"image").unwrap();
+
+    let root = resolve_documents_data_root(&documents).unwrap();
+    assert_eq!(root, documents.join("Initera"));
+    let connection = open_database(&root).unwrap();
+    assert_eq!(
+        read_identity(&connection).unwrap().unwrap().workspace_name,
+        "Workspace"
+    );
+    drop(connection);
+    assert_eq!(fs::read(root.join("media/image.png")).unwrap(), b"image");
+    assert!(!legacy.exists());
+    fs::remove_dir_all(documents).unwrap();
+}
+
+#[test]
+fn documents_root_does_not_hide_legacy_data_behind_an_empty_initera_folder() {
+    let documents = std::env::temp_dir().join(format!("initera-data-root-{}", Uuid::new_v4()));
+    let legacy = documents.join(LEGACY_DATA_FOLDER);
+    fs::create_dir_all(&legacy).unwrap();
+    fs::create_dir_all(documents.join(DATA_FOLDER)).unwrap();
+    fs::write(legacy.join("workspace.sqlite"), b"database").unwrap();
+
+    assert!(resolve_documents_data_root(&documents).is_err());
+    assert!(legacy.join("workspace.sqlite").is_file());
+    fs::remove_dir_all(documents).unwrap();
+}
+
+#[test]
 fn project_resources_have_individual_receipted_operations() {
     let root = std::env::temp_dir().join(format!("pm-app-resources-{}", Uuid::new_v4()));
     let mut connection = open_database(&root).unwrap();

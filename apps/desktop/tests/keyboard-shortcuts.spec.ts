@@ -155,6 +155,7 @@ test('command bar changes issue scope and display preferences', async ({ page })
   await search.fill('hide issue priority');
   await page.getByRole('option', { name: 'Hide issue priority' }).click();
   await page.goto('/#/settings');
+  await page.getByRole('tab', { name: 'Issues' }).click();
   await expect(page.getByRole('switch', { name: 'Show priority' })).toHaveAttribute(
     'aria-checked',
     'false',

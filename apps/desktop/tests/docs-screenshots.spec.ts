@@ -111,9 +111,11 @@ test('capture documentation screens from the running app', async ({ page }) => {
   await page.getByRole('heading', { name: 'Settings', exact: true }).last().waitFor();
   await capture('settings');
 
-  await page.getByRole('heading', { name: 'Labels', exact: true }).scrollIntoViewIfNeeded();
+  await page.getByRole('tab', { name: 'Labels' }).click();
   await capture('settings-labels', page.locator('#labels'));
 
-  await page.getByRole('heading', { name: 'About Initera', exact: true }).scrollIntoViewIfNeeded();
-  await capture('settings-about', page.locator('#about'));
+  await page.getByRole('button', { name: 'Help and settings' }).click();
+  await page.getByRole('menuitem', { name: 'Help' }).click();
+  await page.getByRole('menuitem', { name: 'About' }).click();
+  await capture('settings-about', page.getByRole('dialog', { name: 'About Initera' }));
 });

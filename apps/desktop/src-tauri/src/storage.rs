@@ -15,8 +15,8 @@ use uuid::Uuid;
 use crate::content::{decode_document, encode_document, encode_document_for_storage};
 use crate::mutations::{self, MutationRequest};
 
-// V1 starts from a clean schema; keep pre-release profiles intact in their old folder.
-const DATA_FOLDER: &str = "pm-app-v1";
+const DATA_FOLDER: &str = "Initera";
+const LEGACY_DATA_FOLDER: &str = "pm-app-v1";
 
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -281,12 +281,30 @@ pub(crate) fn document_data_root(app: &AppHandle) -> Result<PathBuf, String> {
         return acceptance_data_root(Path::new(&path));
     }
 
-    app.path()
-        .document_dir()
-        .map(|documents| documents.join(DATA_FOLDER))
-        .map_err(|_| {
-            "The Documents folder is unavailable. Check its location and permissions.".into()
-        })
+    let documents = app.path().document_dir().map_err(|_| {
+        "The Documents folder is unavailable. Check its location and permissions.".to_owned()
+    })?;
+    resolve_documents_data_root(&documents)
+}
+
+fn resolve_documents_data_root(documents: &Path) -> Result<PathBuf, String> {
+    let root = documents.join(DATA_FOLDER);
+    let legacy = documents.join(LEGACY_DATA_FOLDER);
+
+    if legacy.join("workspace.sqlite").is_file() {
+        if root.exists() {
+            return Err(
+                "An Initera folder already exists beside the old workspace. Neither folder was changed."
+                    .into(),
+            );
+        }
+
+        // Renaming the directory keeps the database, media, and backups together.
+        fs::rename(&legacy, &root)
+            .map_err(|error| format!("Cannot move the existing workspace to Initera: {error}"))?;
+    }
+
+    Ok(root)
 }
 
 fn acceptance_data_root(path: &Path) -> Result<PathBuf, String> {

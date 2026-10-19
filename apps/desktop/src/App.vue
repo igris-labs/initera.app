@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { usePreferredDark } from '@vueuse/core';
+import { useEventListener, usePreferredDark } from '@vueuse/core';
 import { listen } from '@tauri-apps/api/event';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { MotionConfig } from 'motion-v';
@@ -33,6 +33,11 @@ const views = useViewsStore();
 const workspace = useWorkspaceStore();
 const { theme } = storeToRefs(preferences);
 const prefersDark = usePreferredDark();
+
+if (usesNativeStorage) {
+  // Keep component context menus while suppressing the WebView's browser menu.
+  useEventListener(window, 'contextmenu', (event) => event.preventDefault());
+}
 
 const mounted = ref(false);
 const restoreReviewOpen = ref(false);

@@ -22,7 +22,7 @@ const ui = computed(() => {
     ...menu,
     root: 'flex w-full',
     content: cn(menu.content, dropdownMenuVariants({ variant, size }), customClass),
-    submenuContent: cn(menu.submenuContent, 'top-auto bottom-0 ml-3 min-w-56 whitespace-nowrap'),
+    submenuContent: cn(menu.submenuContent, 'top-auto -bottom-1.5 ml-2 min-w-56 whitespace-nowrap'),
   };
 });
 </script>
