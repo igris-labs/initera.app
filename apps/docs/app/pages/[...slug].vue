@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import DocsFaq from '../components/docs/DocsFaq.vue';
 import DocsToc from '../components/docs/DocsToc.vue';
 import { Button } from '../components/ui/button';
+import { Icon } from '../components/ui/icon';
 import { extractFaq } from '../lib/docs-faq';
 
 const route = useRoute();
@@ -99,23 +100,36 @@ async function copyLink() {
           <NuxtLink
             v-if="adjacentPages.previous"
             :to="adjacentPages.previous.path"
-            class="rounded-md border border-outline px-4 py-3 text-sm hover:bg-accented"
+            class="group flex items-center gap-3 rounded-md border border-outline px-4 py-3 text-sm hover:bg-accented"
           >
-            <span class="block text-xs text-foreground-muted">Previous</span>
-            <span class="mt-1 block font-medium text-foreground-highlighted">{{
-              adjacentPages.previous.title
-            }}</span>
+            <Icon
+              name="i-tabler-chevron-left"
+              size="sm"
+              class="shrink-0 text-foreground-muted transition-transform group-hover:-translate-x-0.5"
+            />
+            <span class="min-w-0">
+              <span class="block text-xs text-foreground-muted">Previous</span>
+              <span class="mt-1 block font-medium text-foreground-highlighted">{{
+                adjacentPages.previous.title
+              }}</span>
+            </span>
           </NuxtLink>
-          <span v-else />
           <NuxtLink
             v-if="adjacentPages.next"
             :to="adjacentPages.next.path"
-            class="rounded-md border border-outline px-4 py-3 text-sm hover:bg-accented"
+            class="group flex items-center justify-end gap-3 rounded-md border border-outline px-4 py-3 text-right text-sm hover:bg-accented sm:col-start-2"
           >
-            <span class="block text-xs text-foreground-muted">Next</span>
-            <span class="mt-1 block font-medium text-foreground-highlighted">{{
-              adjacentPages.next.title
-            }}</span>
+            <span class="min-w-0">
+              <span class="block text-xs text-foreground-muted">Next</span>
+              <span class="mt-1 block font-medium text-foreground-highlighted">{{
+                adjacentPages.next.title
+              }}</span>
+            </span>
+            <Icon
+              name="i-tabler-chevron-right"
+              size="sm"
+              class="shrink-0 text-foreground-muted transition-transform group-hover:translate-x-0.5"
+            />
           </NuxtLink>
         </nav>
       </div>

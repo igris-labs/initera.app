@@ -150,6 +150,7 @@ watch(open, async (isOpen) => {
   <Dialog
     v-model:open="open"
     title="Search documentation"
+    :close-on-backdrop-click="true"
     size="lg"
     class="command-bar-dialog workbench-surface max-w-2xl"
     :ui="{ header: 'sr-only', body: 'p-0', footer: 'hidden' }"

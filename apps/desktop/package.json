@@ -35,7 +35,7 @@
     "@tiptap/suggestion": "^3.31.3",
     "@tiptap/vue-3": "^3.31.3",
     "@vueuse/core": "^15.0.0",
-    "akaza-ui": "0.0.8-alpha",
+    "akaza-ui": "0.0.9-alpha",
     "class-variance-authority": "^0.7.1",
     "cn": "0.4.0",
     "motion-v": "2.4.4",

@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { AppLayout } from 'akaza-ui';
 import { onMounted, onUnmounted, ref, watch } from 'vue';
 import DocsSearch from '../components/docs/DocsSearch.vue';
 import DocsSidebar from '../components/docs/DocsSidebar.vue';
 import { Button } from '../components/ui/button';
+import { Drawer } from '../components/ui/drawer';
 import { Icon } from '../components/ui/icon';
 import { Sidebar } from '../components/ui/sidebar';
 
@@ -13,7 +15,6 @@ const searchOpen = ref(false);
 const mobileNavOpen = ref(false);
 const desktopNavOpen = ref(true);
 const desktopNavCollapsed = ref(false);
-const mobileNavCollapsed = ref(false);
 const homePath = computed(() => docsNavigation.value?.[0]?.items[0]?.path ?? '/');
 const currentPageTitle = computed(
   () =>
@@ -50,8 +51,18 @@ function toggleTheme() {
 </script>
 
 <template>
-  <div class="min-h-dvh bg-default text-foreground">
-    <header class="sticky top-0 z-20 flex h-12 items-center border-b border-outline bg-default">
+  <AppLayout
+    scroll="page"
+    sticky-header
+    sticky-sides
+    :ui="{
+      root: 'min-h-dvh bg-default text-foreground',
+      header: 'z-20 flex h-12 items-center border-b border-outline bg-default',
+      left: 'hidden lg:block',
+      main: 'min-w-0',
+    }"
+  >
+    <template #header>
       <div class="flex h-full w-full items-center gap-2 px-3 lg:w-60 lg:border-r lg:border-outline">
         <Button
           icon="i-tabler-layout-sidebar-left-expand"
@@ -98,48 +109,57 @@ function toggleTheme() {
         :aria-label="theme === 'dark' ? 'Use light theme' : 'Use dark theme'"
         @click="toggleTheme"
       />
-    </header>
+    </template>
 
-    <aside class="fixed bottom-0 left-0 top-12 z-10 hidden w-60 bg-default lg:block">
+    <template #left>
       <Sidebar
         v-model:open="desktopNavOpen"
         v-model:collapsed="desktopNavCollapsed"
         :mobile="false"
         size="md"
         aria-label="Documentation sidebar"
-        class="h-full"
+        class="h-[calc(100dvh-3rem)]"
         :ui="{ panel: 'border-r border-outline bg-default', header: 'hidden' }"
       >
         <DocsSidebar />
       </Sidebar>
-    </aside>
+    </template>
 
-    <main class="min-w-0 lg:pl-60">
-      <slot />
-    </main>
+    <slot />
 
-    <Sidebar
-      v-model:open="mobileNavOpen"
-      v-model:collapsed="mobileNavCollapsed"
-      :mobile="true"
-      size="lg"
-      aria-label="Documentation sidebar"
-      :ui="{ panel: 'bg-default', mobileContent: 'bg-default' }"
+    <Drawer
+      v-model="mobileNavOpen"
+      title="Documentation"
+      side="bottom"
+      class="h-[min(85dvh,44rem)] w-full overflow-hidden rounded-t-xl border-l-0 border-t border-outline bg-default"
+      :ui="{
+        header: 'flex items-center justify-between px-4 py-3',
+        title: 'text-sm font-semibold text-foreground-highlighted',
+        body: 'min-h-0 flex-1 overflow-y-auto p-0',
+      }"
     >
-      <template #header>
-        <span class="px-2 text-sm font-semibold text-foreground-highlighted">Documentation</span>
+      <template #handle>
+        <div class="flex justify-center pb-1 pt-2">
+          <span class="h-1 w-10 rounded-full bg-foreground-muted/40" />
+        </div>
+      </template>
+      <template #header="{ close, titleId }">
+        <h2 :id="titleId" class="text-sm font-semibold text-foreground-highlighted">
+          Documentation
+        </h2>
         <Button
           icon="i-tabler-x"
           variant="ghost"
           size="icon"
-          class="ml-auto"
           aria-label="Close navigation"
-          @click="mobileNavOpen = false"
+          @click="close"
         />
       </template>
-      <DocsSidebar @navigate="mobileNavOpen = false" />
-    </Sidebar>
+      <template #body>
+        <DocsSidebar @navigate="mobileNavOpen = false" />
+      </template>
+    </Drawer>
 
     <DocsSearch v-model:open="searchOpen" />
-  </div>
+  </AppLayout>
 </template>
