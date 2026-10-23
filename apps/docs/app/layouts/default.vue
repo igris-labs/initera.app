@@ -3,7 +3,7 @@ import { AppLayout } from 'akaza-ui';
 import { onMounted, onUnmounted, ref, watch } from 'vue';
 import DocsSearch from '../components/docs/DocsSearch.vue';
 import DocsSidebar from '../components/docs/DocsSidebar.vue';
-import { Button } from '../components/ui/button';
+import { Button, buttonVariants } from '../components/ui/button';
 import { Drawer } from '../components/ui/drawer';
 import { Icon } from '../components/ui/icon';
 import { Sidebar } from '../components/ui/sidebar';
@@ -101,14 +101,24 @@ function toggleTheme() {
         <span class="text-foreground-highlighted">{{ currentPageTitle }}</span>
       </div>
 
-      <Button
-        :icon="theme === 'dark' ? 'i-tabler-sun' : 'i-tabler-moon'"
-        variant="ghost"
-        size="icon"
-        class="ml-auto mr-3"
-        :aria-label="theme === 'dark' ? 'Use light theme' : 'Use dark theme'"
-        @click="toggleTheme"
-      />
+      <div class="ml-auto mr-3 flex items-center gap-1">
+        <a
+          href="https://github.com/igris-labs/initera.app"
+          target="_blank"
+          rel="noopener noreferrer"
+          :class="buttonVariants({ variant: 'ghost', size: 'icon' })"
+          aria-label="Initera on GitHub"
+        >
+          <Icon name="i-tabler-brand-github" size="sm" />
+        </a>
+        <Button
+          :icon="theme === 'dark' ? 'i-tabler-sun' : 'i-tabler-moon'"
+          variant="ghost"
+          size="icon"
+          :aria-label="theme === 'dark' ? 'Use light theme' : 'Use dark theme'"
+          @click="toggleTheme"
+        />
+      </div>
     </template>
 
     <template #left>

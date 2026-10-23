@@ -2,6 +2,7 @@
 import type { NavigationMenuItem } from 'akaza-ui';
 import { computed, ref, resolveComponent } from 'vue';
 import { Button, buttonVariants } from '../components/ui/button';
+import { Icon } from '../components/ui/icon';
 import { NavigationMenu } from '../components/ui/navigation-menu';
 
 const route = useRoute();
@@ -76,6 +77,15 @@ function toggleTheme() {
         />
 
         <div class="flex items-center gap-3">
+          <a
+            href="https://github.com/igris-labs/initera.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            :class="buttonVariants({ variant: 'ghost', size: 'icon' })"
+            aria-label="Initera on GitHub"
+          >
+            <Icon name="i-tabler-brand-github" size="sm" />
+          </a>
           <Button
             :icon="theme === 'light' ? 'i-tabler-moon' : 'i-tabler-sun'"
             variant="ghost"
@@ -159,13 +169,24 @@ function toggleTheme() {
         ]"
       >
         <span>© {{ new Date().getFullYear() }} Rahul Vashishtha · MIT License</span>
-        <a
-          href="https://igrislabs.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="underline underline-offset-4"
-          >Igris Labs</a
-        >
+        <div class="flex items-center gap-2">
+          <a
+            href="https://x.com/rahulv_dev"
+            target="_blank"
+            rel="noopener noreferrer"
+            :class="[footerLink, 'inline-flex rounded-md p-2 hover:bg-accented']"
+            aria-label="Rahul Vashishtha on X"
+          >
+            <Icon name="i-tabler-brand-x" size="sm" />
+          </a>
+          <a
+            href="https://igrislabs.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="underline underline-offset-4"
+            >Igris Labs</a
+          >
+        </div>
       </div>
     </footer>
   </div>

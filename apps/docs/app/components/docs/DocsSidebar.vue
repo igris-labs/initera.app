@@ -35,10 +35,10 @@ const items = computed<NavigationMenuItem[]>(() =>
     aria-label="Documentation"
     :ui="{
       root: 'h-full overflow-y-auto px-3 py-5',
-      list: 'flex w-full flex-col items-stretch gap-0.5',
+      list: 'flex w-full flex-col items-stretch gap-0.5 [&>li:has(>.akaza-navigation-menu-group-label):not(:first-child)]:mt-5',
       item: 'w-full',
       link: 'flex w-full min-h-8 items-center gap-2 rounded-md px-2 text-xs text-foreground-muted outline-none transition-colors hover:bg-accented hover:text-foreground-highlighted focus-visible:ring-2 focus-visible:ring-info data-akaza-active:bg-accented data-akaza-active:font-medium data-akaza-active:text-foreground-highlighted',
-      groupLabel: 'mb-1 mt-5 px-2 text-xs font-medium text-foreground-muted first:mt-0',
+      groupLabel: 'px-2 pb-1.5 pt-1 text-xs font-semibold text-foreground-muted',
       itemLeading: 'shrink-0',
     }"
     @select="emit('navigate')"
