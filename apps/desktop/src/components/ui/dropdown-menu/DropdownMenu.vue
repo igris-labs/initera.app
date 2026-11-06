@@ -22,7 +22,12 @@ const ui = computed(() => {
     ...menu,
     root: 'flex w-full',
     content: cn(menu.content, dropdownMenuVariants({ variant, size }), customClass),
-    submenuContent: cn(menu.submenuContent, 'top-auto -bottom-1.5 ml-2 min-w-56 whitespace-nowrap'),
+    // Akaza positions submenus from the trigger; keep these two bottom aligned
+    // with the account menu while preserving its fixed viewport positioning.
+    submenuContent: cn(
+      menu.submenuContent,
+      'ml-2 min-w-56 whitespace-nowrap data-[akaza-submenu=help]:-translate-y-9 data-[akaza-submenu=theme]:-translate-y-[33px]',
+    ),
   };
 });
 </script>

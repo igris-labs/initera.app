@@ -320,6 +320,7 @@ defineExpose({ focus: () => editor.value?.commands.focus() });
         type="file"
         accept="image/png,image/jpeg,image/gif,image/webp"
         class="sr-only"
+        tabindex="-1"
         aria-label="Choose image"
         @change="addImage"
       />

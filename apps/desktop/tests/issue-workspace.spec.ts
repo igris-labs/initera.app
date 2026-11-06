@@ -122,6 +122,47 @@ test('composer property menu stays aligned below its compact trigger', async ({ 
   await expect(page.getByRole('combobox', { name: 'Priority' })).toContainText('High');
 });
 
+test('project picker remains usable outside clipped dialog and issue panel bounds', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 980, height: 620 });
+  await page.goto('/#/issues');
+  await page.getByRole('button', { name: 'Create issue' }).click();
+  await page.getByRole('combobox', { name: 'Project' }).click();
+
+  const menu = page.locator('.akaza-select-content');
+  const dialog = page.getByRole('dialog');
+  await expect(menu).toBeVisible();
+  const menuBox = await menu.boundingBox();
+  const dialogBox = await dialog.boundingBox();
+  expect(menuBox!.y + menuBox!.height).toBeGreaterThan(dialogBox!.y + dialogBox!.height);
+  await menu.getByRole('option', { name: 'Design system' }).click();
+  await expect(dialog.getByRole('combobox', { name: 'Project' })).toContainText('Design system');
+
+  await dialog.getByRole('button', { name: 'Close dialog' }).click();
+  await page.getByRole('button', { name: /Open APP-123:/ }).click();
+  const details = page.getByRole('complementary', { name: 'Issue details' });
+  await details.getByRole('combobox', { name: 'Project' }).click();
+  await expect(page.locator('.akaza-select-content')).toBeVisible();
+  await page.getByRole('option', { name: 'Design system' }).click();
+  await expect(page.getByRole('dialog', { name: 'Move APP-123 to Design system' })).toBeVisible();
+});
+
+test('issue composer tabs through visible controls without stopping at the hidden image input', async ({
+  page,
+}) => {
+  await page.goto('/#/issues');
+  await page.getByRole('button', { name: 'Create issue' }).click();
+  await expect(page.getByRole('textbox', { name: 'Title' })).toBeFocused();
+
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('textbox', { name: 'Description' })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('button', { name: 'Add image' })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('combobox', { name: 'Status' })).toBeFocused();
+});
+
 test('issue route, property edit, project navigation, and narrow layout work', async ({ page }) => {
   await page.goto('/#/issues');
   await page.getByRole('button', { name: /Open APP-123:/ }).click();

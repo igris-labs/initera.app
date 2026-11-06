@@ -508,6 +508,16 @@
 }
 
 @layer utilities {
+  /* Akaza Select places its menu inside the scroll container. Open menus need
+     the full viewport so their options remain reachable at small window sizes. */
+  .akaza-dialog-content:has(.akaza-select[data-akaza-state='open']),
+  .akaza-dialog-body:has(.akaza-select[data-akaza-state='open']),
+  [data-issue-preview]:has(.akaza-select[data-akaza-state='open']),
+  [aria-label='Issue details']:has(.akaza-select[data-akaza-state='open']) > .overflow-y-auto,
+  [aria-label='Full issue view']:has(.akaza-select[data-akaza-state='open']) > .overflow-y-auto {
+    overflow: visible;
+  }
+
   .text-data {
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;

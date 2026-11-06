@@ -9,17 +9,34 @@ test('Help opens the About dialog outside Settings', async ({ page }) => {
   await page.getByRole('menuitem', { name: 'Help' }).click();
   const submenu = page.locator('.akaza-menu-submenu-content');
   const parent = page.locator('.akaza-menu-content').first();
-  const [submenuBounds, parentBounds] = await Promise.all([
-    submenu.boundingBox(),
-    parent.boundingBox(),
-  ]);
-  const gap = submenuBounds!.x - (parentBounds!.x + parentBounds!.width);
-  expect(gap).toBeGreaterThanOrEqual(0);
-  expect(gap).toBeLessThanOrEqual(4);
-  const bottomOffset =
-    submenuBounds!.y + submenuBounds!.height - (parentBounds!.y + parentBounds!.height);
-  expect(bottomOffset).toBeGreaterThanOrEqual(-2);
-  expect(bottomOffset).toBeLessThanOrEqual(2);
+  const menuGap = async () => {
+    const [submenuRect, parentRect] = await Promise.all([
+      submenu.boundingBox(),
+      parent.boundingBox(),
+    ]);
+    return submenuRect!.x - (parentRect!.x + parentRect!.width);
+  };
+
+  await expect.poll(menuGap).toBeGreaterThanOrEqual(0);
+  await expect.poll(menuGap).toBeLessThanOrEqual(4);
+  await expect
+    .poll(async () => {
+      const [submenuRect, parentRect] = await Promise.all([
+        submenu.boundingBox(),
+        parent.boundingBox(),
+      ]);
+      return submenuRect!.y + submenuRect!.height - (parentRect!.y + parentRect!.height);
+    })
+    .toBeGreaterThanOrEqual(-2);
+  await expect
+    .poll(async () => {
+      const [submenuRect, parentRect] = await Promise.all([
+        submenu.boundingBox(),
+        parent.boundingBox(),
+      ]);
+      return submenuRect!.y + submenuRect!.height - (parentRect!.y + parentRect!.height);
+    })
+    .toBeLessThanOrEqual(2);
   await expect(page.getByRole('menuitem', { name: 'Submit Issue & Feedback' })).toHaveCSS(
     'white-space',
     'nowrap',
@@ -33,7 +50,7 @@ test('Help opens the About dialog outside Settings', async ({ page }) => {
     'href',
     'https://rahulv.dev',
   );
-  await expect(about).toContainText('0.1.1');
+  await expect(about).toContainText('0.1.2');
 
   await about.getByRole('button', { name: 'MIT License' }).click();
   const license = page.getByRole('dialog', { name: 'MIT License' });

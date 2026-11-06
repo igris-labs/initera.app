@@ -1891,7 +1891,7 @@ dependencies = [
 
 [[package]]
 name = "initera"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "api-contract-macros",
  "base64 0.22.1",
