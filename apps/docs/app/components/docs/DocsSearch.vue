@@ -16,7 +16,6 @@ interface SearchResult {
 const open = defineModel<boolean>('open', { required: true });
 const query = ref('');
 const activeIndex = ref(0);
-const input = ref<{ inputRef?: HTMLInputElement } | null>(null);
 const { data: docsNavigation } = await useDocsNavigation();
 
 const { data: sections } = await useAsyncData('docs-search-sections', () =>
@@ -108,7 +107,7 @@ async function choose(value: unknown) {
   const result = resultFor(value);
   if (!result) return;
 
-  input.value?.inputRef?.blur();
+  searchInput()?.blur();
   open.value = false;
   await nextTick();
   await navigateTo(result.id);
@@ -141,39 +140,49 @@ watch(open, async (isOpen) => {
 
   await nextTick();
   requestAnimationFrame(() => {
-    if (open.value) input.value?.inputRef?.focus();
+    if (open.value) searchInput()?.focus();
   });
 });
+
+function searchInput() {
+  return document.querySelector<HTMLInputElement>(
+    '.command-bar-dialog input[aria-label="Search documentation"]',
+  );
+}
 </script>
 
 <template>
   <Dialog
-    v-model:open="open"
+    v-model="open"
     title="Search documentation"
     :close-on-backdrop-click="true"
-    size="lg"
+    width="lg"
     class="command-bar-dialog workbench-surface max-w-2xl"
     :ui="{ header: 'sr-only', body: 'p-0', footer: 'hidden' }"
   >
     <template #body>
-      <Input
-        ref="input"
-        v-model="query"
-        icon="i-tabler-search"
-        aria-label="Search documentation"
-        placeholder="Type a page or search..."
-        class="w-full px-2 py-2"
-        :ui="{ root: 'border-0 bg-transparent shadow-none focus:ring-0' }"
-        role="combobox"
-        aria-autocomplete="list"
-        aria-controls="docs-search-results-content"
-        :aria-activedescendant="
-          results[activeIndex]
-            ? `docs-search-results-content-option-${options.findIndex((option) => 'value' in option && option.value === results[activeIndex]?.id)}`
-            : undefined
-        "
-        @keydown="onKeydown"
-      />
+      <div class="relative">
+        <Icon
+          name="i-tabler-search"
+          class="pointer-events-none absolute top-1/2 left-4 z-1 -translate-y-1/2 text-foreground-muted"
+        />
+        <Input
+          v-model="query"
+          aria-label="Search documentation"
+          placeholder="Type a page or search..."
+          class="h-12 w-full rounded-none border-0 bg-transparent pl-11 text-sm shadow-none"
+          variant="bare"
+          role="combobox"
+          aria-autocomplete="list"
+          aria-controls="docs-search-results-content"
+          :aria-activedescendant="
+            results[activeIndex]
+              ? `docs-search-results-content-option-${options.findIndex((option) => 'value' in option && option.value === results[activeIndex]?.id)}`
+              : undefined
+          "
+          @keydown="onKeydown"
+        />
+      </div>
 
       <Listbox
         id="docs-search-results"

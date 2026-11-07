@@ -1,57 +1,54 @@
 <script setup lang="ts">
-import { Input as AkazaInput } from 'akaza-ui';
-import { computed, ref } from 'vue';
-import { cn } from '../../../lib/utils';
-import { inputDefaults, inputVariants } from '.';
-import type { InputVariants } from '.';
-import { Icon } from '../icon';
+import { Input as Primitive } from 'akaza-ui';
+import { computed, useAttrs } from 'vue';
 
-interface Props {
-  modelValue?: string;
-  icon?: string;
-  size?: InputVariants['size'];
-  variant?: InputVariants['variant'];
-  class?: string;
-  ui?: { root?: string };
-}
+import { cn } from '../../../utils/ui';
+import uiConfig from '../ui.config';
+import { inputVariants, resolveInputVariants } from './index';
+import type { InputProps, InputSlots } from './index';
 
 defineOptions({ inheritAttrs: false });
-
-const { modelValue = '', icon, size, variant, class: customClass, ui } = defineProps<Props>();
-
-const emit = defineEmits<{ 'update:modelValue': [value: string] }>();
-
-const wrapper = ref<HTMLSpanElement | null>(null);
-
-const inputRef = computed(() => wrapper.value?.querySelector('input') ?? undefined);
-
-const resolvedSize = computed(() => size ?? inputDefaults.size);
-
-defineExpose({ inputRef });
+// Preserve Akaza defaults when optional props, including Boolean aliases, are omitted.
+const props = withDefaults(defineProps<InputProps>(), {
+  id: undefined,
+  name: undefined,
+  type: undefined,
+  placeholder: undefined,
+  autocomplete: undefined,
+  inputmode: undefined,
+  minlength: undefined,
+  maxlength: undefined,
+  pattern: undefined,
+  required: undefined,
+  disabled: undefined,
+  readonly: undefined,
+  invalid: undefined,
+  ariaLabel: undefined,
+  ariaDescribedby: undefined,
+  ui: undefined,
+  modelValue: undefined,
+});
+defineSlots<InputSlots>();
+const attrs = useAttrs();
+const styles = computed(() => inputVariants(resolveInputVariants(props, uiConfig)));
+const mergedUi = computed(() => {
+  const overrides = props.ui as Record<string, string | undefined> | undefined;
+  return Object.fromEntries(
+    Object.entries(styles.value).map(([part, style]) => [
+      part,
+      cn(style(), overrides?.[part], part === 'root' ? props.class : undefined),
+    ]),
+  );
+});
+const primitiveProps = computed(() => {
+  const { class: _class, ui: _ui, size: _size, variant: _variant, ...native } = props;
+  return native;
+});
 </script>
-
 <template>
-  <span ref="wrapper" :class="cn('relative block', customClass)">
-    <Icon
-      v-if="icon"
-      :name="icon"
-      :size="resolvedSize === 'lg' ? 'md' : 'sm'"
-      :class="[
-        'pointer-events-none absolute top-1/2 -translate-y-1/2 text-foreground-dimmed',
-        resolvedSize === 'lg' ? 'left-3.5' : resolvedSize === 'md' ? 'left-3' : 'left-2.5',
-      ]"
-    />
-    <AkazaInput
-      v-bind="$attrs"
-      :model-value="modelValue"
-      :ui="{
-        root: cn(
-          inputVariants({ size, variant }),
-          icon && (resolvedSize === 'lg' ? 'pl-10' : resolvedSize === 'md' ? 'pl-9' : 'pl-8'),
-          ui?.root,
-        ),
-      }"
-      @update:model-value="emit('update:modelValue', $event)"
-    />
-  </span>
+  <component :is="Primitive" v-bind="{ ...primitiveProps, ...attrs }" :ui="mergedUi">
+    <template v-for="(_, name) in $slots" #[name]="scope"
+      ><slot :name="name as keyof InputSlots" v-bind="scope ?? {}"
+    /></template>
+  </component>
 </template>

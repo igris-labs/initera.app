@@ -1,282 +1,186 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue';
+import MarketingHero from '../components/marketing/MarketingHero.vue';
+import MarketingWorkflow from '../components/marketing/MarketingWorkflow.vue';
+import MarketingFaq from '../components/marketing/MarketingFaq.vue';
 import { buttonVariants } from '../components/ui/button';
 import { Icon } from '../components/ui/icon';
 
 definePageMeta({ layout: 'marketing' });
 
 useSeoMeta({
-  title: 'Initera | Project planning and issue tracking',
+  title: 'Initera | Projects and issues, together',
   description:
-    'Plan projects with milestones and cycles. Track issues, related work, and progress in a desktop app.',
-  ogTitle: 'Initera | Project planning and issue tracking',
-  ogDescription:
-    'Plan projects with milestones and cycles. Track issues and progress on your desktop.',
+    'Plan projects, track issues, and work through cycles in an open-source desktop app. Keep your data on your computer.',
 });
 
-const primaryLink = buttonVariants({ variant: 'solid', size: 'lg' });
-const secondaryLink = buttonVariants({ variant: 'outline', size: 'lg' });
 const shell = 'mx-auto w-full max-w-[82rem] px-4 sm:px-6';
-const kicker = 'text-[0.7rem] font-semibold tracking-[0.14em] text-foreground-muted uppercase';
-const heading =
-  'mt-5 text-balance text-[clamp(2.5rem,4.2vw,4.3rem)] leading-[1.1] font-semibold tracking-[-0.065em] text-foreground-highlighted';
-const textLink =
-  'mt-4 inline-flex items-center gap-1.5 text-[0.8rem] font-semibold text-foreground-highlighted no-underline hover:underline underline-offset-4';
-const imageFrame =
-  'overflow-hidden rounded-[0.6rem] border border-outline bg-[#09090a] shadow-[0_3rem_6rem_-4rem_#000]';
-const glow = ref<HTMLElement | null>(null);
-
-let revealObserver: IntersectionObserver | undefined;
-let glowAnimation: Animation | undefined;
-
-onMounted(() => {
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-  const drift = () => Math.round((Math.random() - 0.5) * 64);
-  glowAnimation = glow.value?.animate(
-    [
-      { transform: 'translate3d(0, 0, 0)' },
-      { transform: `translate3d(${drift()}px, ${drift()}px, 0)` },
-      { transform: `translate3d(${drift()}px, ${drift()}px, 0)` },
-      { transform: 'translate3d(0, 0, 0)' },
-    ],
-    { duration: 36000, iterations: Infinity, easing: 'ease-in-out' },
-  );
-
-  document.querySelectorAll<HTMLElement>('[data-enter]').forEach((element, index) => {
-    element.animate(
-      [
-        { opacity: 0, transform: 'translateY(14px)', filter: 'blur(5px)' },
-        { opacity: 1, transform: 'translateY(0)', filter: 'blur(0)' },
-      ],
-      { duration: 700, delay: index * 90, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' },
-    );
-  });
-
-  if (!('IntersectionObserver' in window)) return;
-
-  // Keep offscreen sections hidden before scroll; add transitions only when they enter.
-  const hiddenClasses = ['opacity-0', 'translate-y-5', 'blur-[5px]'];
-
-  revealObserver = new IntersectionObserver(
-    (entries, observer) => {
-      for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
-
-        entry.target.classList.add(
-          'transition-[opacity,translate,filter]',
-          'duration-700',
-          'ease-[cubic-bezier(0.22,1,0.36,1)]',
-        );
-        entry.target.classList.remove(...hiddenClasses);
-        observer.unobserve(entry.target);
-      }
-    },
-    { threshold: 0.12, rootMargin: '0px 0px -32px 0px' },
-  );
-
-  document.querySelectorAll<HTMLElement>('[data-reveal]').forEach((element) => {
-    if (element.getBoundingClientRect().top < window.innerHeight - 32) return;
-
-    element.classList.add(...hiddenClasses);
-    revealObserver?.observe(element);
-  });
-});
-
-onUnmounted(() => {
-  revealObserver?.disconnect();
-  glowAnimation?.cancel();
-});
+const link =
+  'inline-flex items-center gap-2 text-sm font-medium text-foreground-highlighted no-underline hover:underline underline-offset-4';
+const frame =
+  'overflow-hidden rounded-xl border border-outline bg-muted shadow-[0_2rem_5rem_-3rem_#000]';
 </script>
 
 <template>
   <div class="overflow-hidden bg-default">
-    <section
-      :class="[shell, 'relative flex min-h-[38rem] items-center py-24 sm:py-32 lg:py-40']"
-      aria-labelledby="hero-title"
-    >
-      <div
-        aria-hidden="true"
-        class="pointer-events-none absolute inset-x-0 top-32 flex justify-center"
-      >
-        <div
-          ref="glow"
-          class="h-96 w-[min(85vw,70rem)] rounded-full bg-black/[0.04] blur-[90px] dark:bg-white/[0.035]"
-        />
-      </div>
-      <div class="relative max-w-[69rem]">
-        <p :class="kicker" data-enter>OPEN SOURCE · LOCAL FIRST</p>
-        <h1
-          id="hero-title"
-          class="mt-6 max-w-[69rem] text-balance text-[clamp(2.4rem,10vw,3rem)] leading-[1.04] font-semibold tracking-[-0.08em] text-foreground-highlighted sm:text-[clamp(3.4rem,6.3vw,6.7rem)]"
-          data-enter
-        >
-          Plan projects and track issues in one desktop app.
-        </h1>
-        <p
-          class="mt-8 max-w-[39rem] text-[clamp(1rem,1.35vw,1.12rem)] leading-relaxed text-foreground-muted"
-          data-enter
-        >
-          Set milestones and cycles. Open an issue to see its owner, related work, and history.
-        </p>
-        <div class="mt-8 flex flex-wrap gap-3" data-enter>
-          <NuxtLink
-            to="/download"
-            :class="[primaryLink, 'min-h-11 gap-2 px-4 text-[0.83rem] no-underline']"
-          >
-            Download Initera <Icon name="i-tabler-arrow-down" size="sm" />
-          </NuxtLink>
-          <NuxtLink
-            to="/getting-started/quick-start"
-            :class="[secondaryLink, 'min-h-11 px-4 text-[0.83rem] no-underline']"
-          >
-            Read the guide
-          </NuxtLink>
-        </div>
-      </div>
-    </section>
+    <MarketingHero />
+    <MarketingWorkflow id="features" />
 
-    <div :class="[shell, 'pb-28 lg:pb-44']" data-reveal>
-      <figure :class="imageFrame">
-        <NuxtImg
-          src="/images/app/issues-list.png"
-          alt="Initera issue list, grouped by status with priority, labels, and project context"
-          width="1440"
-          height="900"
-          sizes="100vw lg:1280px"
-          loading="eager"
-          class="block h-auto w-[155%] max-w-none sm:w-full"
-        />
-      </figure>
-    </div>
-
-    <section
-      id="features"
-      :class="[shell, 'grid scroll-mt-24 gap-14 pb-32 pt-12 lg:grid-cols-2 lg:gap-24 lg:pb-48']"
-      aria-labelledby="features-title"
-    >
-      <div data-reveal>
-        <h2 id="features-title" :class="[heading, 'mt-0']">How the work is organized</h2>
-      </div>
-      <div data-reveal>
-        <article class="border-t border-outline py-7">
-          <div>
-            <h3 class="text-lg font-semibold tracking-tight text-foreground-highlighted">Issues</h3>
-            <p class="mt-2 max-w-md text-sm leading-relaxed text-foreground-muted">
-              Track status, priority, and ownership. Link related issues, or break larger work into
-              sub-issues.
-            </p>
-            <NuxtLink to="/issues/issues" :class="textLink"
-              >Explore issues <Icon name="i-tabler-arrow-right" size="sm"
-            /></NuxtLink>
-          </div>
-        </article>
-        <article class="border-t border-outline py-7">
-          <div>
-            <h3 class="text-lg font-semibold tracking-tight text-foreground-highlighted">
-              Projects
-            </h3>
-            <p class="mt-2 max-w-md text-sm leading-relaxed text-foreground-muted">
-              Set milestones, add resources, and follow the issues and updates tied to a project.
-            </p>
-            <NuxtLink to="/projects/projects" :class="textLink"
-              >Explore projects <Icon name="i-tabler-arrow-right" size="sm"
-            /></NuxtLink>
-          </div>
-        </article>
-        <article class="border-y border-outline py-7">
-          <div>
-            <h3 class="text-lg font-semibold tracking-tight text-foreground-highlighted">Cycles</h3>
-            <p class="mt-2 max-w-md text-sm leading-relaxed text-foreground-muted">
-              Plan work for a set period. At the end, decide what happens to unfinished issues.
-            </p>
-            <NuxtLink to="/planning/cycles" :class="textLink"
-              >Explore cycles <Icon name="i-tabler-arrow-right" size="sm"
-            /></NuxtLink>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <section
-      class="border-y border-outline bg-muted dark:bg-[#141414]"
-      aria-labelledby="project-title"
-    >
+    <section id="workflow" class="scroll-mt-24 bg-muted dark:bg-[#141414]">
       <div
         :class="[
           shell,
-          'grid items-center gap-14 py-24 lg:grid-cols-[0.7fr_1.1fr] lg:gap-28 lg:py-44',
+          'grid items-center gap-12 py-20 lg:grid-cols-[0.75fr_1.25fr] lg:gap-20 lg:py-28',
         ]"
       >
-        <div data-reveal>
-          <h2 id="project-title" :class="[heading, 'mt-0 max-w-[31rem]']">
-            Review milestones alongside issue progress.
-          </h2>
-          <p class="mt-6 max-w-[31rem] text-[0.94rem] leading-relaxed text-foreground-muted">
-            Open a project to review its description, milestones, resources, updates, and issue
-            progress.
+        <div>
+          <p class="text-xs font-semibold tracking-widest text-foreground-muted uppercase">
+            Find the work
           </p>
-          <NuxtLink to="/projects/projects" :class="textLink"
-            >See how projects work <Icon name="i-tabler-arrow-right" size="sm"
-          /></NuxtLink>
+          <h2
+            class="mt-5 max-w-md text-balance text-3xl leading-tight font-semibold tracking-tight text-foreground-highlighted sm:text-4xl"
+          >
+            Change views without changing context.
+          </h2>
+          <p class="mt-5 max-w-md text-base leading-7 text-foreground-muted">
+            See issues as a list or board. Save a filtered view for work you return to often. Search
+            by title or identifier, then use the command bar to open a result or run an action.
+          </p>
+          <div class="mt-7 flex flex-wrap gap-x-7 gap-y-3">
+            <NuxtLink to="/planning/views-and-search" :class="link"
+              >Views and search <Icon name="i-tabler-arrow-right" size="sm"
+            /></NuxtLink>
+            <NuxtLink to="/reference/command-bar" :class="link"
+              >Command bar <Icon name="i-tabler-arrow-right" size="sm"
+            /></NuxtLink>
+          </div>
         </div>
-        <figure :class="imageFrame" data-reveal>
+        <div class="relative pb-9 sm:pr-14">
+          <figure :class="frame">
+            <NuxtImg
+              src="/images/app/board-view.png"
+              alt="Issue board with cards grouped by status in Initera"
+              width="1440"
+              height="900"
+              sizes="100vw lg:760px"
+              loading="lazy"
+              class="block h-auto w-full"
+            />
+          </figure>
+          <figure
+            class="absolute right-0 bottom-0 w-[min(68%,29rem)] overflow-hidden rounded-lg border border-outline bg-default shadow-2xl"
+          >
+            <NuxtImg
+              src="/images/app/command-bar.png"
+              alt="Command bar with issue search and actions"
+              width="672"
+              height="496"
+              sizes="68vw lg:460px"
+              loading="lazy"
+              class="block h-auto w-full"
+            />
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="local-title">
+      <div
+        :class="[
+          shell,
+          'grid items-center gap-12 py-20 lg:grid-cols-[1.2fr_0.8fr] lg:gap-20 lg:py-28',
+        ]"
+      >
+        <figure :class="[frame, 'order-2 lg:order-1']">
           <NuxtImg
-            src="/images/app/project-overview.png"
-            alt="Initera project overview with milestones, activity, and issue progress"
+            src="/images/app/settings.png"
+            alt="Workspace settings and local data folder in Initera"
             width="1440"
             height="900"
-            sizes="100vw lg:750px"
+            sizes="100vw lg:720px"
             loading="lazy"
-            class="block h-auto min-h-64 w-full object-cover object-left-top lg:min-h-[27rem]"
+            class="block h-auto w-full"
           />
         </figure>
+        <div class="order-1 lg:order-2">
+          <p class="text-xs font-semibold tracking-widest text-foreground-muted uppercase">
+            Keep your copy
+          </p>
+          <h2
+            id="local-title"
+            class="mt-5 max-w-md text-balance text-3xl leading-tight font-semibold tracking-tight text-foreground-highlighted sm:text-4xl"
+          >
+            Your work has a place on your computer.
+          </h2>
+          <p class="mt-5 max-w-md text-base leading-7 text-foreground-muted">
+            Initera stores workspace records in a local database and images in a media folder. You
+            can make a backup that includes both, then restore it when you need to move or recover
+            your work. No account is required to start.
+          </p>
+          <NuxtLink to="/local-first" :class="[link, 'mt-7']"
+            >How local data works <Icon name="i-tabler-arrow-right" size="sm"
+          /></NuxtLink>
+        </div>
       </div>
     </section>
 
     <section
-      id="workflow"
-      :class="[shell, 'scroll-mt-24 py-32 lg:py-48']"
-      aria-labelledby="workflow-title"
+      :class="[shell, 'grid gap-12 py-20 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20 lg:py-28']"
+      aria-labelledby="source-title"
     >
-      <div class="max-w-[49rem]" data-reveal>
-        <h2 id="workflow-title" :class="[heading, 'mt-0']">Search and update from the keyboard.</h2>
-        <p class="mt-6 max-w-[31rem] text-[0.94rem] leading-relaxed text-foreground-muted">
-          Type a title or identifier to find an issue. Use the same bar to open projects, switch
-          views, and run actions.
+      <div>
+        <p class="text-xs font-semibold tracking-widest text-foreground-muted uppercase">
+          Open source
         </p>
-        <NuxtLink to="/reference/command-bar" :class="textLink"
-          >See the command bar <Icon name="i-tabler-arrow-right" size="sm"
-        /></NuxtLink>
+        <h2
+          id="source-title"
+          class="mt-5 max-w-md text-balance text-3xl leading-tight font-semibold tracking-tight text-foreground-highlighted sm:text-4xl"
+        >
+          See the code. Shape what comes next.
+        </h2>
       </div>
-      <figure :class="[imageFrame, 'mx-auto mt-16 max-w-[70rem]']" data-reveal>
-        <NuxtImg
-          src="/images/app/command-bar.png"
-          alt="Initera command bar with search and actions available from the keyboard"
-          width="1440"
-          height="900"
-          sizes="100vw lg:1100px"
-          loading="lazy"
-          class="block h-auto w-full"
-        />
-      </figure>
+      <div class="pt-6">
+        <p class="max-w-2xl text-base leading-7 text-foreground-muted">
+          Initera is published under the MIT License. Read the source, report a problem, or
+          contribute an improvement on GitHub. The desktop app works on its own today; accounts,
+          teams, and sync are planned work.
+        </p>
+        <div class="mt-7 flex flex-wrap gap-x-7 gap-y-3">
+          <NuxtLink to="/open-source" :class="link"
+            >Open-source project <Icon name="i-tabler-arrow-right" size="sm"
+          /></NuxtLink>
+          <NuxtLink to="/changelog" :class="link"
+            >Release history <Icon name="i-tabler-arrow-right" size="sm"
+          /></NuxtLink>
+        </div>
+      </div>
     </section>
+
+    <MarketingFaq />
 
     <section
       :class="[
         shell,
-        'flex min-h-[34rem] flex-col items-center justify-center border-t border-outline py-24 text-center',
+        'flex flex-col items-start justify-between gap-8 py-16 sm:flex-row sm:items-center lg:py-24',
       ]"
-      aria-labelledby="final-title"
-      data-reveal
     >
-      <h2 id="final-title" :class="[heading, 'mb-8']">Get Initera for your desktop.</h2>
+      <div>
+        <h2
+          class="text-balance text-3xl font-semibold tracking-tight text-foreground-highlighted sm:text-4xl"
+        >
+          Start with one issue.
+        </h2>
+        <p class="mt-3 text-base text-foreground-muted">
+          Download Initera and make a workspace when you are ready.
+        </p>
+      </div>
       <NuxtLink
         to="/download"
-        :class="[primaryLink, 'inline-flex min-h-11 gap-2 px-4 text-[0.83rem] no-underline']"
-      >
-        Download Initera <Icon name="i-tabler-arrow-down" size="sm" />
-      </NuxtLink>
+        :class="[
+          buttonVariants({ variant: 'solid', size: 'lg' }).root(),
+          'min-h-11 shrink-0 gap-2 no-underline',
+        ]"
+        >Download Initera <Icon name="i-tabler-arrow-down" size="sm"
+      /></NuxtLink>
     </section>
   </div>
 </template>

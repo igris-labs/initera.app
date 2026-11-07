@@ -1,68 +1,80 @@
-import type { VariantProps } from 'class-variance-authority';
-import { cva } from 'class-variance-authority';
-import { cn } from '../../../lib/utils';
-import uiConfig from '../ui.config';
-import type { PrimitiveSize, PrimitiveVariant } from '../ui.types';
+import type { SliderProps as PrimitiveSliderProps } from 'akaza-ui';
+import type * as Akaza from 'akaza-ui';
+import type { HTMLAttributes } from 'vue';
 
-export { default as Slider } from './Slider.vue';
-export const sliderDefaults = {
-  size: uiConfig.components?.slider?.size ?? uiConfig.defaults?.size ?? 'sm',
-  variant: uiConfig.components?.slider?.variant ?? uiConfig.defaults?.variant ?? 'default',
-};
+import { resolveVariants, tv } from '../../../utils/ui';
+import type { VariantProps } from '../../../utils/ui';
+import type { UiConfig } from '../ui.types';
 
-export const sliderVariants = cva('', {
+export const sliderVariants = tv({
+  slots: {
+    root: 'relative flex touch-none items-center select-none data-[akaza-orientation=vertical]:min-h-32 data-[akaza-orientation=vertical]:flex-col [@media(pointer:coarse)]:min-h-11',
+    input: 'sr-only',
+    track: 'relative w-full rounded-full bg-muted',
+    range: 'absolute rounded-full bg-primary',
+    thumb:
+      'rounded-full border border-border bg-background shadow-sm outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 data-akaza-disabled:pointer-events-none data-akaza-disabled:opacity-50',
+  },
   variants: {
-    variant: { default: '', soft: 'bg-muted', outline: 'border border-outline' },
-    size: { sm: 'text-xs', md: 'text-sm', lg: 'text-base' },
+    size: {
+      xs: {
+        root: 'min-h-6',
+        track: 'h-0.5',
+        thumb: 'size-3',
+        range: 'h-full',
+      },
+      sm: {
+        root: 'min-h-7',
+        track: 'h-1',
+        thumb: 'size-3.5',
+        range: 'h-full',
+      },
+      md: {
+        root: 'min-h-8',
+        track: 'h-1.5',
+        thumb: 'size-4',
+        range: 'h-full',
+      },
+      lg: {
+        root: 'min-h-9',
+        track: 'h-2',
+        thumb: 'size-4.5',
+        range: 'h-full',
+      },
+      xl: {
+        root: 'min-h-10',
+        track: 'h-2.5',
+        thumb: 'size-5',
+        range: 'h-full',
+      },
+    },
   },
   defaultVariants: {
-    variant: sliderDefaults.variant,
-    size: sliderDefaults.size,
+    size: 'sm',
   },
 });
 export type SliderVariants = VariantProps<typeof sliderVariants>;
+export type SliderConfig = Pick<SliderVariants, 'size'>;
+export type SliderSlots = InstanceType<typeof Akaza.Slider>['$slots'];
+export interface SliderProps extends Omit<PrimitiveSliderProps, 'ui' | 'class' | 'size'> {
+  class?: HTMLAttributes['class'];
+  ui?: Akaza.SliderUi;
+  size?: SliderVariants['size'];
+  modelValue?: Akaza.SliderValue;
+}
+export function resolveSliderVariants(props: SliderVariants, config: UiConfig): SliderVariants {
+  return resolveVariants(
+    props,
+    config.components?.slider,
+    config.defaults,
+    sliderVariants.variants,
+  );
+}
 
-export const uiParts: Record<string, string> = {
-  root: 'relative flex min-h-7 items-center',
-  track: 'h-2 w-full rounded-full bg-muted',
-  range: 'h-full rounded-full bg-inverted',
-  thumb:
-    'size-4 rounded-full border border-outline bg-default shadow-sm focus-visible:outline-2 focus-visible:outline-inverted',
-};
+export { default as Slider } from './Slider.vue';
 
-export const uiSizes: Record<PrimitiveSize, Record<string, string>> = {
-  sm: {
-    track: 'h-1.5',
-    thumb: 'size-3.5',
-  },
-  md: {
-    track: 'h-2',
-    thumb: 'size-4',
-  },
-  lg: {
-    track: 'h-3',
-    thumb: 'size-5',
-  },
-};
-
-export function sliderUi(
-  size?: PrimitiveSize,
-  variant?: PrimitiveVariant,
-  customClass?: string,
-  overrides?: Record<string, string>,
-): Record<string, string> {
-  const resolvedSize = size ?? sliderDefaults.size;
-  const styles = { ...uiParts };
-
-  for (const [part, classes] of Object.entries(uiSizes[resolvedSize])) {
-    if (part in styles) styles[part] = cn(styles[part], classes);
+declare module '../ui.types' {
+  interface UiComponentConfig {
+    slider?: SliderConfig;
   }
-
-  styles.root = cn(styles.root, sliderVariants({ size: resolvedSize, variant }), customClass);
-
-  for (const [part, classes] of Object.entries(overrides ?? {})) {
-    styles[part] = cn(styles[part], classes);
-  }
-
-  return styles;
 }

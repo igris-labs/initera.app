@@ -1,33 +1,51 @@
 <script setup lang="ts">
-import { meterUi } from './index';
-import { Meter as AkazaMeter } from 'akaza-ui';
-import type { MeterProps } from 'akaza-ui';
-import { computed } from 'vue';
-import type { PrimitiveSize, PrimitiveVariant } from '../ui.types';
+import { Meter as Primitive } from 'akaza-ui';
+import { computed, useAttrs } from 'vue';
+
+import { cn } from '../../../utils/ui';
+import uiConfig from '../ui.config';
+import { meterVariants, resolveMeterVariants } from './index';
+import type { MeterProps, MeterSlots } from './index';
 
 defineOptions({ inheritAttrs: false });
-
-const props = defineProps<
-  MeterProps & {
-    size?: PrimitiveSize;
-    variant?: PrimitiveVariant;
-    class?: string;
-    ui?: Record<string, string>;
-  }
->();
-
-const akazaProps = computed(() => {
-  const { size, variant, class: customClass, ui, ...rest } = props;
-  return rest;
+// Preserve Akaza defaults when optional props, including Boolean aliases, are omitted.
+const props = withDefaults(defineProps<MeterProps>(), {
+  min: undefined,
+  max: undefined,
+  low: undefined,
+  high: undefined,
+  optimum: undefined,
+  label: undefined,
+  ariaLabel: undefined,
+  ariaLabelledby: undefined,
+  ariaValueText: undefined,
+  locale: undefined,
+  formatOptions: undefined,
+  getAriaValueText: undefined,
+  getValueLabel: undefined,
+  ui: undefined,
 });
-
-const ui = computed(() => meterUi(props.size, props.variant, props.class, props.ui));
+defineSlots<MeterSlots>();
+const attrs = useAttrs();
+const styles = computed(() => meterVariants(resolveMeterVariants(props, uiConfig)));
+const mergedUi = computed(() => {
+  const overrides = props.ui as Record<string, string | undefined> | undefined;
+  return Object.fromEntries(
+    Object.entries(styles.value).map(([part, style]) => [
+      part,
+      cn(style(), overrides?.[part], part === 'root' ? props.class : undefined),
+    ]),
+  );
+});
+const primitiveProps = computed(() => {
+  const { class: _class, ui: _ui, size: _size, ...native } = props;
+  return native;
+});
 </script>
-
 <template>
-  <AkazaMeter v-bind="{ ...akazaProps, ...$attrs }" :ui="ui">
-    <template v-for="(_, slotName) in $slots" #[slotName]="slotProps">
-      <slot :name="slotName" v-bind="slotProps || {}" />
-    </template>
-  </AkazaMeter>
+  <component :is="Primitive" v-bind="{ ...primitiveProps, ...attrs }" :ui="mergedUi">
+    <template v-for="(_, name) in $slots" #[name]="scope"
+      ><slot :name="name as keyof MeterSlots" v-bind="scope ?? {}"
+    /></template>
+  </component>
 </template>

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { menuUi } from '../menu';
-import { Menu as AkazaMenu } from 'akaza-ui';
+import { Menu } from '../menu';
 import type { MenuItem } from 'akaza-ui';
 import { computed } from 'vue';
 import { cn } from '../../../lib/utils';
+import uiConfig from '../ui.config';
 import { dropdownMenuDefaults, dropdownMenuVariants } from '.';
 import type { DropdownMenuVariants } from '.';
 
@@ -16,24 +16,40 @@ interface Props {
 
 const { items, variant, size, class: customClass } = defineProps<Props>();
 
+const resolvedSize = computed(
+  () =>
+    size ??
+    uiConfig.components?.dropdownMenu?.size ??
+    (['sm', 'md', 'lg'] as const).find((value) => value === uiConfig.defaults?.size) ??
+    dropdownMenuDefaults.size,
+);
+const resolvedVariant = computed(
+  () =>
+    variant ??
+    uiConfig.components?.dropdownMenu?.variant ??
+    (['default', 'quiet'] as const).find((value) => value === uiConfig.defaults?.variant) ??
+    dropdownMenuDefaults.variant,
+);
+
 const ui = computed(() => {
-  const menu = menuUi(size ?? dropdownMenuDefaults.size);
   return {
-    ...menu,
     root: 'flex w-full',
-    content: cn(menu.content, dropdownMenuVariants({ variant, size }), customClass),
-    submenuContent: cn(menu.submenuContent, 'top-auto bottom-0 ml-1'),
+    content: cn(
+      dropdownMenuVariants({ variant: resolvedVariant.value, size: resolvedSize.value }),
+      customClass,
+    ),
+    submenuContent: 'top-auto bottom-0 ml-1',
   };
 });
 </script>
 
 <template>
-  <AkazaMenu :items="items" :ui="ui">
+  <Menu :items="items" :size="resolvedSize" :ui="ui">
     <template #trigger="{ toggle, triggerProps }"
       ><slot :toggle="toggle" :trigger-props="triggerProps"
     /></template>
     <template v-for="(_, slotName) in $slots" #[slotName]="slotProps">
       <slot v-if="slotName !== 'default'" :name="slotName" v-bind="slotProps || {}" />
     </template>
-  </AkazaMenu>
+  </Menu>
 </template>

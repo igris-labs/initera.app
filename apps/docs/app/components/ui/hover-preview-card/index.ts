@@ -1,60 +1,61 @@
-import type { VariantProps } from 'class-variance-authority';
-import { cva } from 'class-variance-authority';
-import { cn } from '../../../lib/utils';
-import uiConfig from '../ui.config';
-import type { PrimitiveSize, PrimitiveVariant } from '../ui.types';
+import type { HoverPreviewCardProps as PrimitiveHoverPreviewCardProps } from 'akaza-ui';
+import type * as Akaza from 'akaza-ui';
+import type { HTMLAttributes } from 'vue';
 
-export { default as HoverPreviewCard } from './HoverPreviewCard.vue';
-export const hoverPreviewCardDefaults = {
-  size: uiConfig.components?.hoverPreviewCard?.size ?? uiConfig.defaults?.size ?? 'sm',
-  variant:
-    uiConfig.components?.hoverPreviewCard?.variant ?? uiConfig.defaults?.variant ?? 'default',
-};
+import { resolveVariants, tv } from '../../../utils/ui';
+import type { VariantProps } from '../../../utils/ui';
+import type { UiConfig } from '../ui.types';
 
-export const hoverPreviewCardVariants = cva('', {
+export const hoverPreviewCardVariants = tv({
+  slots: {
+    root: 'inline-flex',
+    trigger:
+      'rounded-sm outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background',
+    content:
+      'z-50 w-max max-w-[min(20rem,calc(100vw-2rem))] overflow-hidden rounded-lg border border-border bg-popover p-3 text-sm leading-6 text-popover-foreground shadow-lg motion-reduce:transition-none',
+    arrow: 'fill-popover stroke-border',
+  },
   variants: {
-    variant: { default: '', soft: 'bg-muted', outline: 'border border-outline' },
-    size: { sm: 'text-xs', md: 'text-sm', lg: 'text-base' },
+    size: {
+      xs: { content: 'rounded-[calc(var(--radius)*0.5+4px)] text-xs leading-4' },
+      sm: { content: 'rounded-lg text-[13px] leading-5' },
+      md: { content: 'rounded-[calc(var(--radius)*0.8+4px)] text-sm leading-6' },
+      lg: { content: 'rounded-xl text-sm leading-6' },
+      xl: { content: 'rounded-[calc(var(--radius)*1.2+4px)] text-base leading-7' },
+    },
   },
   defaultVariants: {
-    variant: hoverPreviewCardDefaults.variant,
-    size: hoverPreviewCardDefaults.size,
+    size: 'md',
   },
 });
 export type HoverPreviewCardVariants = VariantProps<typeof hoverPreviewCardVariants>;
-
-export const uiParts: Record<string, string> = {
-  content: 'z-50 max-w-sm rounded-lg border border-outline bg-elevated p-3 text-sm shadow-lg',
-};
-
-export const uiSizes: Record<PrimitiveSize, Record<string, string>> = {
-  sm: {},
-  md: {},
-  lg: {},
-};
-
-export function hoverPreviewCardUi(
-  size?: PrimitiveSize,
-  variant?: PrimitiveVariant,
-  customClass?: string,
-  overrides?: Record<string, string>,
-): Record<string, string> {
-  const resolvedSize = size ?? hoverPreviewCardDefaults.size;
-  const styles = { ...uiParts };
-
-  for (const [part, classes] of Object.entries(uiSizes[resolvedSize])) {
-    if (part in styles) styles[part] = cn(styles[part], classes);
-  }
-
-  styles.content = cn(
-    styles.content,
-    hoverPreviewCardVariants({ size: resolvedSize, variant }),
-    customClass,
+export type HoverPreviewCardConfig = Pick<HoverPreviewCardVariants, 'size'>;
+export type HoverPreviewCardSlots = InstanceType<typeof Akaza.HoverPreviewCard>['$slots'];
+export interface HoverPreviewCardProps extends Omit<
+  PrimitiveHoverPreviewCardProps,
+  'ui' | 'class' | 'size'
+> {
+  class?: HTMLAttributes['class'];
+  ui?: Akaza.HoverPreviewCardUi;
+  size?: HoverPreviewCardVariants['size'];
+  modelValue?: boolean;
+}
+export function resolveHoverPreviewCardVariants(
+  props: HoverPreviewCardVariants,
+  config: UiConfig,
+): HoverPreviewCardVariants {
+  return resolveVariants(
+    props,
+    config.components?.hoverPreviewCard,
+    config.defaults,
+    hoverPreviewCardVariants.variants,
   );
+}
 
-  for (const [part, classes] of Object.entries(overrides ?? {})) {
-    styles[part] = cn(styles[part], classes);
+export { default as HoverPreviewCard } from './HoverPreviewCard.vue';
+
+declare module '../ui.types' {
+  interface UiComponentConfig {
+    hoverPreviewCard?: HoverPreviewCardConfig;
   }
-
-  return styles;
 }

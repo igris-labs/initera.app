@@ -1,33 +1,69 @@
 <script setup lang="ts">
-import { alertDialogUi } from './index';
-import { AlertDialog as AkazaAlertDialog } from 'akaza-ui';
-import type { AlertDialogProps } from 'akaza-ui';
-import { computed } from 'vue';
-import type { PrimitiveSize, PrimitiveVariant } from '../ui.types';
+import { AlertDialog as Primitive } from 'akaza-ui';
+import { computed, useAttrs, useTemplateRef } from 'vue';
+
+import { cn } from '../../../utils/ui';
+import uiConfig from '../ui.config';
+import { alertDialogVariants, resolveAlertDialogVariants } from './index';
+import type { AlertDialogProps, AlertDialogSlots } from './index';
 
 defineOptions({ inheritAttrs: false });
-
-const props = defineProps<
-  AlertDialogProps & {
-    size?: PrimitiveSize;
-    variant?: PrimitiveVariant;
-    class?: string;
-    ui?: Record<string, string>;
-  }
->();
-
-const akazaProps = computed(() => {
-  const { size, variant, class: customClass, ui, ...rest } = props;
-  return rest;
+// Preserve Akaza defaults when optional props, including Boolean aliases, are omitted.
+const props = withDefaults(defineProps<AlertDialogProps>(), {
+  as: undefined,
+  teleport: undefined,
+  transition: undefined,
+  duration: undefined,
+  title: undefined,
+  ariaLabel: undefined,
+  description: undefined,
+  ui: undefined,
+  modelValue: undefined,
 });
-
-const ui = computed(() => alertDialogUi(props.size, props.variant, props.class, props.ui));
+defineSlots<AlertDialogSlots>();
+const attrs = useAttrs();
+const styles = computed(() => alertDialogVariants(resolveAlertDialogVariants(props, uiConfig)));
+const mergedUi = computed(() => {
+  const overrides = props.ui as Record<string, string | undefined> | undefined;
+  return Object.fromEntries(
+    Object.entries(styles.value).map(([part, style]) => [
+      part,
+      cn(style(), overrides?.[part], part === 'content' ? props.class : undefined),
+    ]),
+  );
+});
+const primitiveProps = computed(() => {
+  const { class: _class, ui: _ui, width: _width, ...native } = props;
+  return native;
+});
+const primitive = useTemplateRef<InstanceType<typeof Primitive>>('primitive');
+defineExpose({
+  get open() {
+    return primitive.value!.open;
+  },
+  get close() {
+    return primitive.value!.close;
+  },
+  get toggle() {
+    return primitive.value!.toggle;
+  },
+  get titleId() {
+    return primitive.value!.titleId;
+  },
+  get descriptionId() {
+    return primitive.value!.descriptionId;
+  },
+});
 </script>
-
 <template>
-  <AkazaAlertDialog v-bind="{ ...akazaProps, ...$attrs }" :ui="ui">
-    <template v-for="(_, slotName) in $slots" #[slotName]="slotProps">
-      <slot :name="slotName" v-bind="slotProps || {}" />
-    </template>
-  </AkazaAlertDialog>
+  <component
+    :is="Primitive"
+    ref="primitive"
+    v-bind="{ ...primitiveProps, ...attrs }"
+    :ui="mergedUi"
+  >
+    <template v-for="(_, name) in $slots" #[name]="scope"
+      ><slot :name="name as keyof AlertDialogSlots" v-bind="scope ?? {}"
+    /></template>
+  </component>
 </template>

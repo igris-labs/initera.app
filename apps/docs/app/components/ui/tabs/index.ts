@@ -1,64 +1,83 @@
-import type { VariantProps } from 'class-variance-authority';
-import { cva } from 'class-variance-authority';
-import { cn } from '../../../lib/utils';
-import uiConfig from '../ui.config';
-import type { PrimitiveSize, PrimitiveVariant } from '../ui.types';
+import type { TabsProps as PrimitiveTabsProps } from 'akaza-ui';
+import type * as Akaza from 'akaza-ui';
+import type { HTMLAttributes } from 'vue';
 
-export const tabsDefaults = {
-  size: uiConfig.components?.tabs?.size ?? uiConfig.defaults?.size ?? 'sm',
-  variant: uiConfig.components?.tabs?.variant ?? uiConfig.defaults?.variant ?? 'default',
-};
+import { resolveVariants, tv } from '../../../utils/ui';
+import type { VariantProps } from '../../../utils/ui';
+import type { UiConfig } from '../ui.types';
 
-export const tabsVariants = cva('', {
+export const tabsVariants = tv({
+  slots: {
+    root: 'flex w-full min-w-0 flex-col gap-4 data-[akaza-orientation=vertical]:flex-row data-[akaza-orientation=vertical]:items-start',
+    list: 'relative isolate flex w-fit max-w-full items-center gap-1 overflow-x-auto bg-muted p-1 shadow-none aria-[orientation=vertical]:flex-col aria-[orientation=vertical]:items-stretch',
+    tab: 'relative z-10 inline-flex shrink-0 cursor-pointer items-center justify-center gap-1.5 font-medium text-muted-foreground transition-colors duration-150 ease-interaction outline-none select-none hover:text-highlighted focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 data-akaza-disabled:pointer-events-none data-akaza-disabled:opacity-50 data-[akaza-state=active]:text-highlighted motion-reduce:transition-none [@media(pointer:coarse)]:min-h-11 [@media(pointer:coarse)]:min-w-11',
+    indicator:
+      'absolute bg-background shadow-none transition-[left,width,top,height] duration-180 ease-interaction in-aria-[orientation=horizontal]:inset-y-1 in-aria-[orientation=vertical]:inset-x-1 motion-reduce:transition-none',
+    panels: 'grid min-w-0 flex-1',
+    panel:
+      'invisible col-start-1 row-start-1 block! min-w-0 outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background data-[akaza-state=active]:visible',
+  },
   variants: {
-    variant: { default: '', soft: 'bg-muted', outline: 'border border-outline' },
-    size: { sm: 'text-xs', md: 'text-sm', lg: 'text-base' },
+    size: {
+      xs: {
+        list: 'rounded-[calc(var(--radius)*0.5+4px)]',
+        indicator: 'rounded-[calc(var(--radius)*0.5)]',
+        tab: 'min-h-6 gap-1 rounded-[calc(var(--radius)*0.5)] px-2 py-1 text-xs leading-4',
+      },
+      sm: {
+        list: 'rounded-lg',
+        indicator: 'rounded-sm',
+        tab: 'min-h-7 gap-1 rounded-sm px-2.5 py-1 text-[13px] leading-4',
+      },
+      md: {
+        list: 'rounded-[calc(var(--radius)*0.8+4px)]',
+        indicator: 'rounded-md',
+        tab: 'min-h-8 gap-1.5 rounded-md px-3 py-1 text-sm leading-5',
+      },
+      lg: {
+        list: 'rounded-xl',
+        indicator: 'rounded-lg',
+        tab: 'min-h-9 gap-2 rounded-lg px-3.5 py-1 text-sm leading-5',
+      },
+      xl: {
+        list: 'rounded-[calc(var(--radius)*1.2+4px)]',
+        indicator: 'rounded-[calc(var(--radius)*1.2)]',
+        tab: 'min-h-10 gap-2.5 rounded-[calc(var(--radius)*1.2)] px-4 py-1 text-base leading-6',
+      },
+    },
+    variant: {
+      line: {
+        list: 'rounded-none bg-transparent p-0',
+        tab: 'rounded-none',
+        indicator:
+          'rounded-none bg-foreground shadow-none ring-0 in-aria-[orientation=horizontal]:top-auto in-aria-[orientation=horizontal]:bottom-0 in-aria-[orientation=horizontal]:h-0.5 in-aria-[orientation=vertical]:right-auto in-aria-[orientation=vertical]:left-0 in-aria-[orientation=vertical]:w-0.5 dark:bg-foreground',
+      },
+      soft: {},
+    },
   },
   defaultVariants: {
-    variant: tabsDefaults.variant,
-    size: tabsDefaults.size,
+    size: 'sm',
+    variant: 'soft',
   },
 });
 export type TabsVariants = VariantProps<typeof tabsVariants>;
+export type TabsConfig = Pick<TabsVariants, 'size' | 'variant'>;
+export type TabsSlots = InstanceType<typeof Akaza.Tabs>['$slots'];
+export interface TabsProps extends Omit<PrimitiveTabsProps, 'ui' | 'class' | 'size' | 'variant'> {
+  class?: HTMLAttributes['class'];
+  ui?: Akaza.TabsUi;
+  size?: TabsVariants['size'];
+  variant?: TabsVariants['variant'];
+  modelValue?: string;
+}
+export function resolveTabsVariants(props: TabsVariants, config: UiConfig): TabsVariants {
+  return resolveVariants(props, config.components?.tabs, config.defaults, tabsVariants.variants);
+}
+
 export { default as Tabs } from './Tabs.vue';
 
-export const uiParts: Record<string, string> = {
-  root: 'text-sm',
-  list: 'inline-flex items-center gap-0.5 rounded-lg bg-muted p-0.5',
-  tab: 'min-h-6 rounded-md px-2 text-xs font-medium text-foreground-muted data-[akaza-state=active]:bg-default data-[akaza-state=active]:text-foreground data-[akaza-state=active]:shadow-sm data-[akaza-state=active]:ring-1 data-[akaza-state=active]:ring-outline',
-  panel: 'pt-3',
-};
-
-export const uiSizes: Record<PrimitiveSize, Record<string, string>> = {
-  sm: {
-    tab: 'text-xs min-h-7 px-2',
-  },
-  md: {
-    tab: 'text-sm min-h-8 px-2.5',
-  },
-  lg: {
-    tab: 'text-base min-h-9 px-3',
-  },
-};
-
-export function tabsUi(
-  size?: PrimitiveSize,
-  variant?: PrimitiveVariant,
-  customClass?: string,
-  overrides?: Record<string, string>,
-): Record<string, string> {
-  const resolvedSize = size ?? tabsDefaults.size;
-  const styles = { ...uiParts };
-
-  for (const [part, classes] of Object.entries(uiSizes[resolvedSize])) {
-    if (part in styles) styles[part] = cn(styles[part], classes);
+declare module '../ui.types' {
+  interface UiComponentConfig {
+    tabs?: TabsConfig;
   }
-
-  styles.root = cn(styles.root, tabsVariants({ size: resolvedSize, variant }), customClass);
-
-  for (const [part, classes] of Object.entries(overrides ?? {})) {
-    styles[part] = cn(styles[part], classes);
-  }
-
-  return styles;
 }

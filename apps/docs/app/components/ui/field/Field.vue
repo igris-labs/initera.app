@@ -1,33 +1,52 @@
 <script setup lang="ts">
-import { fieldUi } from './index';
-import { Field as AkazaField } from 'akaza-ui';
-import type { FieldProps } from 'akaza-ui';
-import { computed } from 'vue';
-import type { PrimitiveSize, PrimitiveVariant } from '../ui.types';
+import { Field as Primitive } from 'akaza-ui';
+import { computed, useAttrs } from 'vue';
+
+import { cn } from '../../../utils/ui';
+import uiConfig from '../ui.config';
+import { fieldVariants, resolveFieldVariants } from './index';
+import type { FieldProps, FieldSlots } from './index';
 
 defineOptions({ inheritAttrs: false });
-
-const props = defineProps<
-  FieldProps & {
-    size?: PrimitiveSize;
-    variant?: PrimitiveVariant;
-    class?: string;
-    ui?: Record<string, string>;
-  }
->();
-
-const akazaProps = computed(() => {
-  const { size, variant, class: customClass, ui, ...rest } = props;
-  return rest;
+// Preserve Akaza defaults when optional props, including Boolean aliases, are omitted.
+const props = withDefaults(defineProps<FieldProps>(), {
+  as: undefined,
+  id: undefined,
+  name: undefined,
+  label: undefined,
+  description: undefined,
+  error: undefined,
+  errorMatch: undefined,
+  required: undefined,
+  disabled: undefined,
+  invalid: undefined,
+  dirty: undefined,
+  touched: undefined,
+  filled: undefined,
+  focused: undefined,
+  ui: undefined,
 });
-
-const ui = computed(() => fieldUi(props.size, props.variant, props.class, props.ui));
+defineSlots<FieldSlots>();
+const attrs = useAttrs();
+const styles = computed(() => fieldVariants(resolveFieldVariants(props, uiConfig)));
+const mergedUi = computed(() => {
+  const overrides = props.ui as Record<string, string | undefined> | undefined;
+  return Object.fromEntries(
+    Object.entries(styles.value).map(([part, style]) => [
+      part,
+      cn(style(), overrides?.[part], part === 'root' ? props.class : undefined),
+    ]),
+  );
+});
+const primitiveProps = computed(() => {
+  const { class: _class, ui: _ui, ...native } = props;
+  return native;
+});
 </script>
-
 <template>
-  <AkazaField v-bind="{ ...akazaProps, ...$attrs }" :ui="ui">
-    <template v-for="(_, slotName) in $slots" #[slotName]="slotProps">
-      <slot :name="slotName" v-bind="slotProps || {}" />
-    </template>
-  </AkazaField>
+  <component :is="Primitive" v-bind="{ ...primitiveProps, ...attrs }" :ui="mergedUi">
+    <template v-for="(_, name) in $slots" #[name]="scope"
+      ><slot :name="name as keyof FieldSlots" v-bind="scope ?? {}"
+    /></template>
+  </component>
 </template>

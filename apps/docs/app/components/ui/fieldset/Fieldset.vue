@@ -1,33 +1,42 @@
 <script setup lang="ts">
-import { fieldsetUi } from './index';
-import { Fieldset as AkazaFieldset } from 'akaza-ui';
-import type { FieldsetProps } from 'akaza-ui';
-import { computed } from 'vue';
-import type { PrimitiveSize, PrimitiveVariant } from '../ui.types';
+import { Fieldset as Primitive } from 'akaza-ui';
+import { computed, useAttrs } from 'vue';
+
+import { cn } from '../../../utils/ui';
+import uiConfig from '../ui.config';
+import { fieldsetVariants, resolveFieldsetVariants } from './index';
+import type { FieldsetProps, FieldsetSlots } from './index';
 
 defineOptions({ inheritAttrs: false });
-
-const props = defineProps<
-  FieldsetProps & {
-    size?: PrimitiveSize;
-    variant?: PrimitiveVariant;
-    class?: string;
-    ui?: Record<string, string>;
-  }
->();
-
-const akazaProps = computed(() => {
-  const { size, variant, class: customClass, ui, ...rest } = props;
-  return rest;
+// Preserve Akaza defaults when optional props, including Boolean aliases, are omitted.
+const props = withDefaults(defineProps<FieldsetProps>(), {
+  legend: undefined,
+  description: undefined,
+  disabled: undefined,
+  invalid: undefined,
+  ui: undefined,
 });
-
-const ui = computed(() => fieldsetUi(props.size, props.variant, props.class, props.ui));
+defineSlots<FieldsetSlots>();
+const attrs = useAttrs();
+const styles = computed(() => fieldsetVariants(resolveFieldsetVariants(props, uiConfig)));
+const mergedUi = computed(() => {
+  const overrides = props.ui as Record<string, string | undefined> | undefined;
+  return Object.fromEntries(
+    Object.entries(styles.value).map(([part, style]) => [
+      part,
+      cn(style(), overrides?.[part], part === 'root' ? props.class : undefined),
+    ]),
+  );
+});
+const primitiveProps = computed(() => {
+  const { class: _class, ui: _ui, ...native } = props;
+  return native;
+});
 </script>
-
 <template>
-  <AkazaFieldset v-bind="{ ...akazaProps, ...$attrs }" :ui="ui">
-    <template v-for="(_, slotName) in $slots" #[slotName]="slotProps">
-      <slot :name="slotName" v-bind="slotProps || {}" />
-    </template>
-  </AkazaFieldset>
+  <component :is="Primitive" v-bind="{ ...primitiveProps, ...attrs }" :ui="mergedUi">
+    <template v-for="(_, name) in $slots" #[name]="scope"
+      ><slot :name="name as keyof FieldsetSlots" v-bind="scope ?? {}"
+    /></template>
+  </component>
 </template>

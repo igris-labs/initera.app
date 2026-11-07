@@ -1,63 +1,82 @@
-import type { VariantProps } from 'class-variance-authority';
-import { cva } from 'class-variance-authority';
-import { cn } from '../../../lib/utils';
-import uiConfig from '../ui.config';
-import type { PrimitiveSize, PrimitiveVariant } from '../ui.types';
+import type { PinInputProps as PrimitivePinInputProps } from 'akaza-ui';
+import type * as Akaza from 'akaza-ui';
+import type { HTMLAttributes } from 'vue';
 
-export { default as PinInput } from './PinInput.vue';
-export const pinInputDefaults = {
-  size: uiConfig.components?.pinInput?.size ?? uiConfig.defaults?.size ?? 'sm',
-  variant: uiConfig.components?.pinInput?.variant ?? uiConfig.defaults?.variant ?? 'default',
-};
+import { resolveVariants, tv } from '../../../utils/ui';
+import type { VariantProps } from '../../../utils/ui';
+import type { UiConfig } from '../ui.types';
 
-export const pinInputVariants = cva('', {
+export const pinInputVariants = tv({
+  slots: {
+    root: 'inline-flex items-center gap-2 [@media(pointer:coarse)]:gap-1',
+    hiddenInput: 'sr-only',
+    input:
+      'border border-input bg-background text-center text-foreground tabular-nums shadow-none transition-colors duration-150 ease-interaction outline-none placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:focus-visible:ring-destructive/25 data-akaza-disabled:pointer-events-none data-akaza-disabled:opacity-50 data-akaza-focused:ring-1 data-akaza-focused:ring-ring aria-invalid:data-akaza-focused:ring-destructive/25 data-akaza-invalid:border-destructive data-akaza-invalid:focus-visible:ring-destructive/25 data-akaza-invalid:data-akaza-focused:ring-destructive/25 motion-reduce:transition-none [@media(pointer:coarse)]:min-h-11 [@media(pointer:coarse)]:min-w-11',
+  },
   variants: {
-    variant: { default: '', soft: 'bg-muted', outline: 'border border-outline' },
-    size: { sm: 'text-xs', md: 'text-sm', lg: 'text-base' },
+    size: {
+      xs: {
+        input: 'h-6 w-6 gap-1 rounded-[calc(var(--radius)*0.5)] px-0 text-xs leading-4',
+      },
+      sm: {
+        input: 'h-7 w-7 gap-1 rounded-sm px-0 text-[13px] leading-4',
+      },
+      md: {
+        input: 'h-8 w-8 gap-1.5 rounded-md px-0 text-sm leading-5',
+      },
+      lg: {
+        input: 'h-9 w-9 gap-2 rounded-lg px-0 text-sm leading-5',
+      },
+      xl: {
+        input: 'h-10 w-10 gap-2.5 rounded-[calc(var(--radius)*1.2)] px-0 text-base leading-6',
+      },
+    },
+    variant: {
+      outline: {
+        input: 'border-input bg-background',
+      },
+      soft: {
+        input: 'border-transparent bg-muted',
+      },
+      bare: {
+        input: 'border-transparent bg-transparent focus-visible:ring-0 data-akaza-focused:ring-0',
+      },
+    },
   },
   defaultVariants: {
-    variant: pinInputDefaults.variant,
-    size: pinInputDefaults.size,
+    size: 'sm',
+    variant: 'outline',
   },
 });
 export type PinInputVariants = VariantProps<typeof pinInputVariants>;
+export type PinInputConfig = Pick<PinInputVariants, 'size' | 'variant'>;
+export type PinInputSlots = InstanceType<typeof Akaza.PinInput>['$slots'];
+export interface PinInputProps extends Omit<
+  PrimitivePinInputProps,
+  'ui' | 'class' | 'size' | 'variant'
+> {
+  class?: HTMLAttributes['class'];
+  ui?: Akaza.PinInputUi;
+  size?: PinInputVariants['size'];
+  variant?: PinInputVariants['variant'];
+  modelValue?: string;
+}
+export function resolvePinInputVariants(
+  props: PinInputVariants,
+  config: UiConfig,
+): PinInputVariants {
+  return resolveVariants(
+    props,
+    config.components?.pinInput,
+    config.defaults,
+    pinInputVariants.variants,
+  );
+}
 
-export const uiParts: Record<string, string> = {
-  root: 'flex items-center gap-2',
-  input:
-    'size-9 rounded-lg border border-outline bg-default text-center text-sm outline-none focus-visible:ring-2 focus-visible:ring-inverted/15',
-};
+export { default as PinInput } from './PinInput.vue';
 
-export const uiSizes: Record<PrimitiveSize, Record<string, string>> = {
-  sm: {
-    input: 'size-7 text-xs',
-  },
-  md: {
-    input: 'size-8 text-sm',
-  },
-  lg: {
-    input: 'size-9 text-base',
-  },
-};
-
-export function pinInputUi(
-  size?: PrimitiveSize,
-  variant?: PrimitiveVariant,
-  customClass?: string,
-  overrides?: Record<string, string>,
-): Record<string, string> {
-  const resolvedSize = size ?? pinInputDefaults.size;
-  const styles = { ...uiParts };
-
-  for (const [part, classes] of Object.entries(uiSizes[resolvedSize])) {
-    if (part in styles) styles[part] = cn(styles[part], classes);
+declare module '../ui.types' {
+  interface UiComponentConfig {
+    pinInput?: PinInputConfig;
   }
-
-  styles.root = cn(styles.root, pinInputVariants({ size: resolvedSize, variant }), customClass);
-
-  for (const [part, classes] of Object.entries(overrides ?? {})) {
-    styles[part] = cn(styles[part], classes);
-  }
-
-  return styles;
 }

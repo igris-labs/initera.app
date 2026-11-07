@@ -1,55 +1,51 @@
-import type { VariantProps } from 'class-variance-authority';
-import { cva } from 'class-variance-authority';
-import { cn } from '../../../lib/utils';
-import uiConfig from '../ui.config';
-import type { PrimitiveSize, PrimitiveVariant } from '../ui.types';
+import type { SeparatorProps as PrimitiveSeparatorProps } from 'akaza-ui';
+import type * as Akaza from 'akaza-ui';
+import type { HTMLAttributes } from 'vue';
 
-export { default as Separator } from './Separator.vue';
-export const separatorDefaults = {
-  size: uiConfig.components?.separator?.size ?? uiConfig.defaults?.size ?? 'sm',
-  variant: uiConfig.components?.separator?.variant ?? uiConfig.defaults?.variant ?? 'default',
-};
+import { resolveVariants, tv } from '../../../utils/ui';
+import type { VariantProps } from '../../../utils/ui';
+import type { UiConfig } from '../ui.types';
 
-export const separatorVariants = cva('', {
+export const separatorVariants = tv({
+  slots: {
+    root: 'shrink-0 bg-border data-[akaza-orientation=horizontal]:h-px data-[akaza-orientation=horizontal]:w-full data-[akaza-orientation=vertical]:h-full data-[akaza-orientation=vertical]:w-px',
+  },
   variants: {
-    variant: { default: '', soft: 'bg-muted', outline: 'border border-outline' },
-    size: { sm: 'text-xs', md: 'text-sm', lg: 'text-base' },
+    variant: {
+      default: {},
+      muted: {
+        root: 'bg-border/50',
+      },
+    },
   },
   defaultVariants: {
-    variant: separatorDefaults.variant,
-    size: separatorDefaults.size,
+    variant: 'default',
   },
 });
 export type SeparatorVariants = VariantProps<typeof separatorVariants>;
+export type SeparatorConfig = Pick<SeparatorVariants, 'variant'>;
+export type SeparatorSlots = InstanceType<typeof Akaza.Separator>['$slots'];
+export interface SeparatorProps extends Omit<PrimitiveSeparatorProps, 'ui' | 'class' | 'variant'> {
+  class?: HTMLAttributes['class'];
+  ui?: Akaza.SeparatorUi;
+  variant?: SeparatorVariants['variant'];
+}
+export function resolveSeparatorVariants(
+  props: SeparatorVariants,
+  config: UiConfig,
+): SeparatorVariants {
+  return resolveVariants(
+    props,
+    config.components?.separator,
+    config.defaults,
+    separatorVariants.variants,
+  );
+}
 
-export const uiParts: Record<string, string> = {
-  root: 'shrink-0 border-outline data-[akaza-orientation=horizontal]:border-t data-[akaza-orientation=vertical]:border-l',
-};
+export { default as Separator } from './Separator.vue';
 
-export const uiSizes: Record<PrimitiveSize, Record<string, string>> = {
-  sm: {},
-  md: {},
-  lg: {},
-};
-
-export function separatorUi(
-  size?: PrimitiveSize,
-  variant?: PrimitiveVariant,
-  customClass?: string,
-  overrides?: Record<string, string>,
-): Record<string, string> {
-  const resolvedSize = size ?? separatorDefaults.size;
-  const styles = { ...uiParts };
-
-  for (const [part, classes] of Object.entries(uiSizes[resolvedSize])) {
-    if (part in styles) styles[part] = cn(styles[part], classes);
+declare module '../ui.types' {
+  interface UiComponentConfig {
+    separator?: SeparatorConfig;
   }
-
-  styles.root = cn(styles.root, separatorVariants({ size: resolvedSize, variant }), customClass);
-
-  for (const [part, classes] of Object.entries(overrides ?? {})) {
-    styles[part] = cn(styles[part], classes);
-  }
-
-  return styles;
 }

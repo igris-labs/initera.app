@@ -1,59 +1,67 @@
-import type { VariantProps } from 'class-variance-authority';
-import { cva } from 'class-variance-authority';
-import { cn } from '../../../lib/utils';
-import uiConfig from '../ui.config';
-import type { PrimitiveSize, PrimitiveVariant } from '../ui.types';
+import type { DrawerProps as PrimitiveDrawerProps } from 'akaza-ui';
+import type * as Akaza from 'akaza-ui';
+import type { HTMLAttributes } from 'vue';
 
-export { default as Drawer } from './Drawer.vue';
-export const drawerDefaults = {
-  size: uiConfig.components?.drawer?.size ?? uiConfig.defaults?.size ?? 'sm',
-  variant: uiConfig.components?.drawer?.variant ?? uiConfig.defaults?.variant ?? 'default',
-};
+import { resolveVariants, tv } from '../../../utils/ui';
+import type { VariantProps } from '../../../utils/ui';
+import type { UiConfig } from '../ui.types';
 
-export const drawerVariants = cva('', {
+export const drawerVariants = tv({
+  slots: {
+    overlay: 'fixed inset-0 bg-scrim',
+    content:
+      'max-w-[calc(100vw-2rem)] border border-border bg-popover text-popover-foreground shadow-xl outline-none',
+    header: 'flex flex-col gap-1.5 border-b border-border px-4 py-3',
+    title: 'text-base font-semibold text-highlighted',
+    description: 'text-sm leading-6 text-muted-foreground',
+    body: 'p-4 text-sm leading-6',
+    footer: 'flex flex-wrap items-center justify-end gap-2 border-t border-border px-4 py-3',
+  },
   variants: {
-    variant: { default: '', soft: 'bg-muted', outline: 'border border-outline' },
-    size: { sm: 'text-xs', md: 'text-sm', lg: 'text-base' },
+    width: {
+      xs: {
+        content: 'w-[min(20rem,calc(100vw-2rem))] max-w-none',
+      },
+      sm: {
+        content: 'w-[min(24rem,calc(100vw-2rem))] max-w-none',
+      },
+      md: {
+        content: 'w-[min(32rem,calc(100vw-2rem))] max-w-none',
+      },
+      lg: {
+        content: 'w-[min(40rem,calc(100vw-2rem))] max-w-none',
+      },
+      xl: {
+        content: 'w-[min(48rem,calc(100vw-2rem))] max-w-none',
+      },
+    },
   },
   defaultVariants: {
-    variant: drawerDefaults.variant,
-    size: drawerDefaults.size,
+    width: 'md',
   },
 });
 export type DrawerVariants = VariantProps<typeof drawerVariants>;
+export type DrawerConfig = Pick<DrawerVariants, 'width'>;
+export type DrawerSlots = InstanceType<typeof Akaza.Drawer>['$slots'];
+export interface DrawerProps extends Omit<PrimitiveDrawerProps, 'ui' | 'class' | 'width'> {
+  class?: HTMLAttributes['class'];
+  ui?: Akaza.DrawerUi;
+  width?: DrawerVariants['width'];
+  modelValue?: boolean;
+}
+export function resolveDrawerVariants(props: DrawerVariants, config: UiConfig): DrawerVariants {
+  return resolveVariants(
+    props,
+    config.components?.drawer,
+    config.defaults,
+    drawerVariants.variants,
+  );
+}
 
-export const uiParts: Record<string, string> = {
-  overlay: 'fixed inset-0 bg-scrim',
-  content: 'border-l border-outline bg-elevated text-foreground shadow-lg',
-  header: 'border-b border-outline p-4',
-  body: 'overflow-auto p-4',
-  footer: 'border-t border-outline p-4',
-};
+export { default as Drawer } from './Drawer.vue';
 
-export const uiSizes: Record<PrimitiveSize, Record<string, string>> = {
-  sm: {},
-  md: {},
-  lg: {},
-};
-
-export function drawerUi(
-  size?: PrimitiveSize,
-  variant?: PrimitiveVariant,
-  customClass?: string,
-  overrides?: Record<string, string>,
-): Record<string, string> {
-  const resolvedSize = size ?? drawerDefaults.size;
-  const styles = { ...uiParts };
-
-  for (const [part, classes] of Object.entries(uiSizes[resolvedSize])) {
-    if (part in styles) styles[part] = cn(styles[part], classes);
+declare module '../ui.types' {
+  interface UiComponentConfig {
+    drawer?: DrawerConfig;
   }
-
-  styles.content = cn(styles.content, drawerVariants({ size: resolvedSize, variant }), customClass);
-
-  for (const [part, classes] of Object.entries(overrides ?? {})) {
-    styles[part] = cn(styles[part], classes);
-  }
-
-  return styles;
 }

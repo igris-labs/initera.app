@@ -12,6 +12,10 @@
   --font-sans: 'Inter', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 
+  --ease-interaction: cubic-bezier(0.215, 0.61, 0.355, 1);
+  --ease-enter: cubic-bezier(0.165, 0.84, 0.44, 1);
+  --ease-exit: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+
   --color-initera-ink: #1d1f20;
 
   --color-shell: oklch(94.91% 0 0);
@@ -19,6 +23,42 @@
 }
 
 @theme inline {
+  --color-background: var(--background);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-scrim: var(--scrim);
+  --color-dimmed: var(--text-dimmed);
+  --color-toned: var(--text-toned);
+  --color-highlighted: var(--text-highlighted);
+  --color-inverted-foreground: var(--inverted-foreground);
+  --color-border-muted: var(--border-muted);
+  --color-border-accented: var(--border-accented);
+  --color-border-inverted: var(--border-inverted);
+  --color-info-foreground: var(--info-foreground);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning-foreground: var(--warning-foreground);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+
   --color-default: var(--ui-bg);
   --color-muted: var(--ui-bg-muted);
   --color-elevated: var(--ui-bg-elevated);
@@ -41,6 +81,43 @@
 @layer theme {
   :root,
   .light {
+    --radius: 0.625rem;
+    --background: oklch(100% 0 0);
+    --foreground: oklch(24.35% 0 0);
+    --card: var(--background);
+    --card-foreground: var(--foreground);
+    --popover: var(--background);
+    --popover-foreground: var(--foreground);
+    --primary: oklch(24.35% 0 0);
+    --primary-foreground: oklch(100% 0 0);
+    --secondary: oklch(94.91% 0 0);
+    --secondary-foreground: var(--foreground);
+    --muted: oklch(97.61% 0 0);
+    --muted-foreground: oklch(49.62% 0 0);
+    --accent: oklch(53.99% 0.1906 257.5);
+    --accent-foreground: oklch(100% 0 0);
+    --destructive: oklch(57.05% 0.2094 32);
+    --destructive-foreground: oklch(100% 0 0);
+    --border: oklch(17.76% 0 0 / 0.08);
+    --input: oklch(17.76% 0 0 / 0.1);
+    --ring: oklch(60% 0 0);
+    --sidebar: oklch(94.91% 0 0);
+    --sidebar-foreground: var(--muted-foreground);
+    --sidebar-border: var(--border);
+    --info: var(--accent);
+    --info-foreground: var(--accent-foreground);
+    --success: oklch(53.26% 0.1082 167.7);
+    --success-foreground: oklch(100% 0 0);
+    --warning: oklch(55.89% 0.1295 61.2);
+    --warning-foreground: oklch(100% 0 0);
+    --scrim: oklch(17.76% 0 0 / 0.5);
+    --text-dimmed: oklch(51% 0 0);
+    --text-toned: var(--muted-foreground);
+    --text-highlighted: var(--foreground);
+    --inverted-foreground: oklch(100% 0 0);
+    --border-muted: oklch(17.76% 0 0 / 0.045);
+    --border-accented: oklch(17.76% 0 0 / 0.1);
+    --border-inverted: oklch(27.27% 0 0);
     --ui-radius: 0.25rem;
     --ui-header-height: 3rem;
     --ui-sidebar-text: 0.75rem;
@@ -147,7 +224,7 @@
     --secondary-foreground: var(--color-neutral-100);
     --muted: color-mix(in srgb, var(--color-neutral-50) 8%, var(--background));
     --muted-foreground: color-mix(in srgb, var(--color-neutral-500) 70%, var(--color-neutral-50));
-    --accent: color-mix(in srgb, var(--color-neutral-50) 8%, var(--background));
+    --accent: oklch(70% 0.16 257.5);
     --accent-foreground: var(--color-neutral-100);
     --destructive: color-mix(in srgb, var(--color-red-600) 90%, var(--color-neutral-50));
     --destructive-foreground: var(--color-red-400);
@@ -191,7 +268,7 @@
     --ui-bg: var(--background);
     --ui-bg-muted: var(--muted);
     --ui-bg-elevated: var(--card);
-    --ui-bg-accented: var(--accent);
+    --ui-bg-accented: color-mix(in srgb, var(--color-neutral-50) 8%, var(--background));
     --ui-bg-inverted: var(--primary);
 
     --ui-border: var(--border);

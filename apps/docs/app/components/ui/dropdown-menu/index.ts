@@ -1,20 +1,9 @@
 import { cva } from 'class-variance-authority';
 import type { VariantProps } from 'class-variance-authority';
-import uiConfig from '../ui.config';
 
 export { default as DropdownMenu } from './DropdownMenu.vue';
 
-export const dropdownMenuDefaults = {
-  size:
-    (['sm', 'md', 'lg'] as const).find(
-      (value) => value === (uiConfig.components?.dropdownMenu?.size ?? uiConfig.defaults?.size),
-    ) ?? 'sm',
-  variant:
-    (['default', 'quiet'] as const).find(
-      (value) =>
-        value === (uiConfig.components?.dropdownMenu?.variant ?? uiConfig.defaults?.variant),
-    ) ?? 'default',
-};
+export const dropdownMenuDefaults = { size: 'sm', variant: 'default' } as const;
 
 export const dropdownMenuVariants = cva(
   'rounded-lg border border-outline bg-elevated text-foreground shadow-lg',
@@ -31,3 +20,9 @@ export const dropdownMenuVariants = cva(
 );
 
 export type DropdownMenuVariants = VariantProps<typeof dropdownMenuVariants>;
+
+declare module '../ui.types' {
+  interface UiComponentConfig {
+    dropdownMenu?: Pick<DropdownMenuVariants, 'size' | 'variant'>;
+  }
+}

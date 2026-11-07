@@ -1,66 +1,91 @@
-import type { VariantProps } from 'class-variance-authority';
-import { cva } from 'class-variance-authority';
-import { cn } from '../../../lib/utils';
-import uiConfig from '../ui.config';
-import type { PrimitiveSize, PrimitiveVariant } from '../ui.types';
+import type { DateRangeFieldProps as PrimitiveDateRangeFieldProps } from 'akaza-ui';
+import type * as Akaza from 'akaza-ui';
+import type { HTMLAttributes } from 'vue';
 
-export { default as DateRangeField } from './DateRangeField.vue';
-export const dateRangeFieldDefaults = {
-  size: uiConfig.components?.dateRangeField?.size ?? uiConfig.defaults?.size ?? 'sm',
-  variant: uiConfig.components?.dateRangeField?.variant ?? uiConfig.defaults?.variant ?? 'default',
-};
+import { resolveVariants, tv } from '../../../utils/ui';
+import type { VariantProps } from '../../../utils/ui';
+import type { UiConfig } from '../ui.types';
 
-export const dateRangeFieldVariants = cva('', {
+export const dateRangeFieldVariants = tv({
+  slots: {
+    root: 'flex flex-wrap items-center gap-2 max-sm:flex-col max-sm:items-stretch',
+    start: 'min-w-0',
+    startField: '',
+    separator: 'text-muted-foreground max-sm:hidden',
+    end: 'min-w-0',
+    endField: '',
+    hiddenInput: 'sr-only',
+    popover: 'inline-flex max-w-full',
+    fields: 'inline-flex max-w-full items-center gap-1.5',
+    calendarTrigger: '',
+    calendarContent:
+      'z-50 max-w-[calc(100vw-2rem)] overflow-auto rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-lg',
+    calendar: 'border-0 bg-transparent shadow-none',
+  },
   variants: {
-    variant: { default: '', soft: 'bg-muted', outline: 'border border-outline' },
-    size: { sm: 'text-xs', md: 'text-sm', lg: 'text-base' },
+    rangeColor: { secondary: {}, accent: {} },
+    variant: { outline: {}, soft: {}, bare: {} },
+    size: {
+      xs: {
+        root: 'gap-1 text-xs leading-4',
+      },
+      sm: {
+        root: 'gap-1 text-[13px] leading-4',
+      },
+      md: {
+        root: 'gap-1.5 text-sm leading-5',
+      },
+      lg: {
+        root: 'gap-2 text-sm leading-5',
+      },
+      xl: {
+        root: 'gap-2.5 text-base leading-6',
+      },
+    },
   },
   defaultVariants: {
-    variant: dateRangeFieldDefaults.variant,
-    size: dateRangeFieldDefaults.size,
+    size: 'sm',
   },
 });
 export type DateRangeFieldVariants = VariantProps<typeof dateRangeFieldVariants>;
-
-export const uiParts: Record<string, string> = {
-  root: 'inline-flex items-center gap-1 rounded-lg border border-outline bg-default text-foreground',
-  separator: 'text-foreground-muted',
-};
-
-export const uiSizes: Record<PrimitiveSize, Record<string, string>> = {
-  sm: {
-    root: 'min-h-7 gap-1.5 px-2.5 text-xs',
-  },
-  md: {
-    root: 'min-h-8 gap-1.5 px-3 text-sm',
-  },
-  lg: {
-    root: 'min-h-9 gap-2 px-3.5 text-base',
-  },
-};
-
-export function dateRangeFieldUi(
-  size?: PrimitiveSize,
-  variant?: PrimitiveVariant,
-  customClass?: string,
-  overrides?: Record<string, string>,
-): Record<string, string> {
-  const resolvedSize = size ?? dateRangeFieldDefaults.size;
-  const styles = { ...uiParts };
-
-  for (const [part, classes] of Object.entries(uiSizes[resolvedSize])) {
-    if (part in styles) styles[part] = cn(styles[part], classes);
-  }
-
-  styles.root = cn(
-    styles.root,
-    dateRangeFieldVariants({ size: resolvedSize, variant }),
-    customClass,
+export type DateRangeFieldConfig = Pick<DateRangeFieldVariants, 'size' | 'variant' | 'rangeColor'>;
+export type DateRangeFieldSlots = InstanceType<typeof Akaza.DateRangeField>['$slots'];
+export interface DateRangeFieldProps extends Omit<
+  PrimitiveDateRangeFieldProps,
+  'ui' | 'class' | 'size'
+> {
+  calendarLabel?: string;
+  showCalendar?: boolean;
+  calendarOpen?: boolean;
+  class?: HTMLAttributes['class'];
+  ui?: Akaza.DateRangeFieldUi & {
+    popover?: string;
+    fields?: string;
+    calendarTrigger?: string;
+    calendarContent?: string;
+    calendar?: Akaza.CalendarUi;
+  };
+  size?: DateRangeFieldVariants['size'];
+  rangeColor?: DateRangeFieldVariants['rangeColor'];
+  variant?: DateRangeFieldVariants['variant'];
+  modelValue?: Akaza.CalendarDateRange;
+}
+export function resolveDateRangeFieldVariants(
+  props: DateRangeFieldVariants,
+  config: UiConfig,
+): DateRangeFieldVariants {
+  return resolveVariants(
+    props,
+    config.components?.dateRangeField,
+    config.defaults,
+    dateRangeFieldVariants.variants,
   );
+}
 
-  for (const [part, classes] of Object.entries(overrides ?? {})) {
-    styles[part] = cn(styles[part], classes);
+export { default as DateRangeField } from './DateRangeField.vue';
+
+declare module '../ui.types' {
+  interface UiComponentConfig {
+    dateRangeField?: DateRangeFieldConfig;
   }
-
-  return styles;
 }

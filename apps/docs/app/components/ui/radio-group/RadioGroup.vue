@@ -1,37 +1,52 @@
 <script setup lang="ts">
-import { radioGroupUi } from './index';
-import { RadioGroup as AkazaRadioGroup } from 'akaza-ui';
-import type { RadioGroupProps } from 'akaza-ui';
-import { computed } from 'vue';
-import type { PrimitiveSize, PrimitiveVariant } from '../ui.types';
+import { RadioGroup as Primitive } from 'akaza-ui';
+import { computed, useAttrs } from 'vue';
+
+import { cn } from '../../../utils/ui';
+import uiConfig from '../ui.config';
+import { radioGroupVariants, resolveRadioGroupVariants } from './index';
+import type { RadioGroupProps, RadioGroupSlots } from './index';
 
 defineOptions({ inheritAttrs: false });
-
-const {
-  size,
-  variant,
-  class: customClass,
-  ui: customUi,
-  loop = true,
-  ...forwardedProps
-} = defineProps<
-  RadioGroupProps & {
-    size?: PrimitiveSize;
-    variant?: PrimitiveVariant;
-    class?: string;
-    ui?: Record<string, string>;
-  }
->();
-
-const akazaProps = computed(() => ({ ...forwardedProps, loop }));
-
-const ui = computed(() => radioGroupUi(size, variant, customClass, customUi));
+// Preserve Akaza defaults when optional props, including Boolean aliases, are omitted.
+const props = withDefaults(defineProps<RadioGroupProps>(), {
+  valueKey: undefined,
+  labelKey: undefined,
+  descriptionKey: undefined,
+  disabled: undefined,
+  orientation: undefined,
+  as: undefined,
+  legend: undefined,
+  loop: undefined,
+  name: undefined,
+  required: undefined,
+  ariaLabel: undefined,
+  ariaLabelledby: undefined,
+  getItemDisabled: undefined,
+  ui: undefined,
+  modelValue: undefined,
+});
+defineSlots<RadioGroupSlots>();
+const attrs = useAttrs();
+const styles = computed(() => radioGroupVariants(resolveRadioGroupVariants(props, uiConfig)));
+const mergedUi = computed(() => {
+  const overrides = props.ui as Record<string, string | undefined> | undefined;
+  return Object.fromEntries(
+    Object.entries(styles.value).map(([part, style]) => [
+      part,
+      cn(style(), overrides?.[part], part === 'root' ? props.class : undefined),
+    ]),
+  );
+});
+const primitiveProps = computed(() => {
+  const { class: _class, ui: _ui, size: _size, ...native } = props;
+  return native;
+});
 </script>
-
 <template>
-  <AkazaRadioGroup v-bind="{ ...akazaProps, ...$attrs }" :ui="ui">
-    <template v-for="(_, slotName) in $slots" #[slotName]="slotProps">
-      <slot :name="slotName" v-bind="slotProps || {}" />
-    </template>
-  </AkazaRadioGroup>
+  <component :is="Primitive" v-bind="{ ...primitiveProps, ...attrs }" :ui="mergedUi">
+    <template v-for="(_, name) in $slots" #[name]="scope"
+      ><slot :name="name as keyof RadioGroupSlots" v-bind="scope ?? {}"
+    /></template>
+  </component>
 </template>

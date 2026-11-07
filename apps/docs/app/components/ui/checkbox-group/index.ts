@@ -1,67 +1,68 @@
-import type { VariantProps } from 'class-variance-authority';
-import { cva } from 'class-variance-authority';
-import { cn } from '../../../lib/utils';
-import uiConfig from '../ui.config';
-import type { PrimitiveSize, PrimitiveVariant } from '../ui.types';
+import type { CheckboxGroupProps as PrimitiveCheckboxGroupProps } from 'akaza-ui';
+import type * as Akaza from 'akaza-ui';
+import type { HTMLAttributes } from 'vue';
 
-export { default as CheckboxGroup } from './CheckboxGroup.vue';
-export const checkboxGroupDefaults = {
-  size: uiConfig.components?.checkboxGroup?.size ?? uiConfig.defaults?.size ?? 'sm',
-  variant: uiConfig.components?.checkboxGroup?.variant ?? uiConfig.defaults?.variant ?? 'default',
-};
+import { resolveVariants, tv } from '../../../utils/ui';
+import type { VariantProps } from '../../../utils/ui';
+import type { UiConfig } from '../ui.types';
 
-export const checkboxGroupVariants = cva('', {
+export const checkboxGroupVariants = tv({
+  slots: {
+    root: 'flex flex-col gap-2',
+    input: 'sr-only',
+    legend: 'mb-1 text-sm font-medium text-highlighted',
+    parentItem: 'mb-1 border-b border-border pb-2',
+    item: 'py-0',
+    checkbox: '',
+  },
   variants: {
-    variant: { default: '', soft: 'bg-muted', outline: 'border border-outline' },
-    size: { sm: 'text-xs', md: 'text-sm', lg: 'text-base' },
+    size: {
+      xs: {
+        root: 'gap-1',
+      },
+      sm: {
+        root: 'gap-1.5',
+      },
+      md: {
+        root: 'gap-2',
+      },
+      lg: {
+        root: 'gap-2.5',
+      },
+      xl: {
+        root: 'gap-3',
+      },
+    },
   },
   defaultVariants: {
-    variant: checkboxGroupDefaults.variant,
-    size: checkboxGroupDefaults.size,
+    size: 'sm',
   },
 });
 export type CheckboxGroupVariants = VariantProps<typeof checkboxGroupVariants>;
-
-export const uiParts: Record<string, string> = {
-  root: 'grid gap-2',
-  legend: 'text-sm font-medium',
-  item: 'flex items-center gap-2',
-};
-
-export const uiSizes: Record<PrimitiveSize, Record<string, string>> = {
-  sm: {
-    legend: 'text-xs',
-  },
-  md: {
-    legend: 'text-sm',
-  },
-  lg: {
-    legend: 'text-base',
-  },
-};
-
-export function checkboxGroupUi(
-  size?: PrimitiveSize,
-  variant?: PrimitiveVariant,
-  customClass?: string,
-  overrides?: Record<string, string>,
-): Record<string, string> {
-  const resolvedSize = size ?? checkboxGroupDefaults.size;
-  const styles = { ...uiParts };
-
-  for (const [part, classes] of Object.entries(uiSizes[resolvedSize])) {
-    if (part in styles) styles[part] = cn(styles[part], classes);
-  }
-
-  styles.root = cn(
-    styles.root,
-    checkboxGroupVariants({ size: resolvedSize, variant }),
-    customClass,
+export type CheckboxGroupConfig = Pick<CheckboxGroupVariants, 'size'>;
+export type CheckboxGroupSlots = InstanceType<typeof Akaza.CheckboxGroup>['$slots'];
+export interface CheckboxGroupProps extends Omit<PrimitiveCheckboxGroupProps, 'ui' | 'class'> {
+  size?: CheckboxGroupVariants['size'];
+  class?: HTMLAttributes['class'];
+  ui?: Akaza.CheckboxGroupUi;
+  modelValue?: Akaza.CheckboxGroupValue[];
+}
+export function resolveCheckboxGroupVariants(
+  props: CheckboxGroupVariants,
+  config: UiConfig,
+): CheckboxGroupVariants {
+  return resolveVariants(
+    props,
+    config.components?.checkboxGroup,
+    config.defaults,
+    checkboxGroupVariants.variants,
   );
+}
 
-  for (const [part, classes] of Object.entries(overrides ?? {})) {
-    styles[part] = cn(styles[part], classes);
+export { default as CheckboxGroup } from './CheckboxGroup.vue';
+
+declare module '../ui.types' {
+  interface UiComponentConfig {
+    checkboxGroup?: CheckboxGroupConfig;
   }
-
-  return styles;
 }

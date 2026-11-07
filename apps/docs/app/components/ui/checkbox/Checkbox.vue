@@ -1,40 +1,49 @@
 <script setup lang="ts">
-import { checkboxUi } from './index';
-import { Checkbox as AkazaCheckbox } from 'akaza-ui';
-import type { CheckboxProps, CheckboxValue } from 'akaza-ui';
-import { computed } from 'vue';
-import type { PrimitiveSize, PrimitiveVariant } from '../ui.types';
+import { Checkbox as Primitive } from 'akaza-ui';
+import { computed, useAttrs } from 'vue';
+
+import { cn } from '../../../utils/ui';
+import uiConfig from '../ui.config';
+import { checkboxVariants, resolveCheckboxVariants } from './index';
+import type { CheckboxProps, CheckboxSlots } from './index';
 
 defineOptions({ inheritAttrs: false });
-
-const {
-  size,
-  variant,
-  class: customClass,
-  ui: customUi,
-  trueValue = true,
-  falseValue = false,
-  ...forwardedProps
-} = defineProps<
-  CheckboxProps & {
-    size?: PrimitiveSize;
-    variant?: PrimitiveVariant;
-    class?: string;
-    ui?: Record<string, string>;
-  }
->();
-
-const model = defineModel<CheckboxValue>({ default: false });
-
-const akazaProps = computed(() => ({ ...forwardedProps, trueValue, falseValue }));
-
-const ui = computed(() => checkboxUi(size, variant, customClass, customUi));
+// Preserve Akaza defaults when optional props, including Boolean aliases, are omitted.
+const props = withDefaults(defineProps<CheckboxProps>(), {
+  disabled: undefined,
+  id: undefined,
+  name: undefined,
+  required: undefined,
+  trueValue: undefined,
+  falseValue: undefined,
+  label: undefined,
+  description: undefined,
+  ariaLabel: undefined,
+  ariaDescribedby: undefined,
+  ui: undefined,
+  modelValue: undefined,
+});
+defineSlots<CheckboxSlots>();
+const attrs = useAttrs();
+const styles = computed(() => checkboxVariants(resolveCheckboxVariants(props, uiConfig)));
+const mergedUi = computed(() => {
+  const overrides = props.ui as Record<string, string | undefined> | undefined;
+  return Object.fromEntries(
+    Object.entries(styles.value).map(([part, style]) => [
+      part,
+      cn(style(), overrides?.[part], part === 'wrapper' ? props.class : undefined),
+    ]),
+  );
+});
+const primitiveProps = computed(() => {
+  const { class: _class, ui: _ui, size: _size, ...native } = props;
+  return native;
+});
 </script>
-
 <template>
-  <AkazaCheckbox v-bind="{ ...akazaProps, ...$attrs }" v-model="model" :ui="ui">
-    <template v-for="(_, slotName) in $slots" #[slotName]="slotProps">
-      <slot :name="slotName" v-bind="slotProps || {}" />
-    </template>
-  </AkazaCheckbox>
+  <component :is="Primitive" v-bind="{ ...primitiveProps, ...attrs }" :ui="mergedUi">
+    <template v-for="(_, name) in $slots" #[name]="scope"
+      ><slot :name="name as keyof CheckboxSlots" v-bind="scope ?? {}"
+    /></template>
+  </component>
 </template>

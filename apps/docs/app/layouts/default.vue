@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { AppLayout } from 'akaza-ui';
 import { onMounted, onUnmounted, ref, watch } from 'vue';
 import DocsSearch from '../components/docs/DocsSearch.vue';
 import DocsSidebar from '../components/docs/DocsSidebar.vue';
+import { AppLayout } from '../components/ui/app-layout';
 import { Button, buttonVariants } from '../components/ui/button';
 import { Drawer } from '../components/ui/drawer';
 import { Icon } from '../components/ui/icon';
@@ -57,21 +57,22 @@ function toggleTheme() {
     sticky-sides
     :ui="{
       root: 'min-h-dvh bg-default text-foreground',
-      header: 'z-20 flex h-12 items-center border-b border-outline bg-default',
+      header: 'z-20 flex h-12 items-center border-b border-outline bg-default px-0',
       left: 'hidden lg:block',
       main: 'min-w-0',
     }"
   >
     <template #header>
-      <div class="flex h-full w-full items-center gap-2 px-3 lg:w-60 lg:border-r lg:border-outline">
+      <div class="flex h-full w-full items-center gap-2 px-3 lg:w-64 lg:border-r lg:border-outline">
         <Button
-          icon="i-tabler-layout-sidebar-left-expand"
           variant="ghost"
-          size="icon"
+          size="md"
+          shape="icon"
           class="lg:hidden"
           aria-label="Open navigation"
           @click="mobileNavOpen = true"
-        />
+          ><Icon name="i-tabler-layout-sidebar-left-expand" size="sm"
+        /></Button>
         <NuxtLink
           to="/"
           class="flex items-center gap-2 text-sm font-semibold text-foreground-highlighted"
@@ -86,13 +87,14 @@ function toggleTheme() {
           Docs
         </NuxtLink>
         <Button
-          icon="i-tabler-search"
           variant="ghost"
-          size="icon"
+          size="md"
+          shape="icon"
           class="ml-auto"
           aria-label="Search documentation"
           @click="searchOpen = true"
-        />
+          ><Icon name="i-tabler-search" size="sm"
+        /></Button>
       </div>
 
       <div class="hidden min-w-0 items-center gap-2 px-6 text-xs text-foreground-muted lg:flex">
@@ -106,18 +108,19 @@ function toggleTheme() {
           href="https://github.com/igris-labs/initera.app"
           target="_blank"
           rel="noopener noreferrer"
-          :class="buttonVariants({ variant: 'ghost', size: 'icon' })"
+          :class="buttonVariants({ variant: 'ghost', size: 'md', shape: 'icon' }).root()"
           aria-label="Initera on GitHub"
         >
           <Icon name="i-tabler-brand-github" size="sm" />
         </a>
         <Button
-          :icon="theme === 'dark' ? 'i-tabler-sun' : 'i-tabler-moon'"
           variant="ghost"
-          size="icon"
+          size="md"
+          shape="icon"
           :aria-label="theme === 'dark' ? 'Use light theme' : 'Use dark theme'"
           @click="toggleTheme"
-        />
+          ><Icon :name="theme === 'dark' ? 'i-tabler-sun' : 'i-tabler-moon'" size="sm"
+        /></Button>
       </div>
     </template>
 
@@ -126,7 +129,7 @@ function toggleTheme() {
         v-model:open="desktopNavOpen"
         v-model:collapsed="desktopNavCollapsed"
         :mobile="false"
-        size="md"
+        item-size="md"
         aria-label="Documentation sidebar"
         class="h-[calc(100dvh-3rem)]"
         :ui="{ panel: 'border-r border-outline bg-default', header: 'hidden' }"
@@ -143,7 +146,7 @@ function toggleTheme() {
       side="bottom"
       class="h-[min(85dvh,44rem)] w-full overflow-hidden rounded-t-xl border-l-0 border-t border-outline bg-default"
       :ui="{
-        header: 'flex items-center justify-between px-4 py-3',
+        header: 'flex flex-row items-center justify-between px-4 py-3',
         title: 'text-sm font-semibold text-foreground-highlighted',
         body: 'min-h-0 flex-1 overflow-y-auto p-0',
       }"
@@ -157,13 +160,9 @@ function toggleTheme() {
         <h2 :id="titleId" class="text-sm font-semibold text-foreground-highlighted">
           Documentation
         </h2>
-        <Button
-          icon="i-tabler-x"
-          variant="ghost"
-          size="icon"
-          aria-label="Close navigation"
-          @click="close"
-        />
+        <Button variant="ghost" size="md" shape="icon" aria-label="Close navigation" @click="close"
+          ><Icon name="i-tabler-x" size="sm"
+        /></Button>
       </template>
       <template #body>
         <DocsSidebar @navigate="mobileNavOpen = false" />

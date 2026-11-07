@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import { cn } from '../../../lib/utils';
 import { labelSwatch } from '../../../lib/label-presentation';
+import uiConfig from '../ui.config';
 import { badgeDefaults, badgeVariants } from '.';
 import type { BadgeVariants } from '.';
 
@@ -15,9 +16,25 @@ interface Props {
 
 const { label, variant, size, class: customClass, dot = false } = defineProps<Props>();
 
-const classes = computed(() => cn(badgeVariants({ variant, size }), customClass));
-
-const resolvedSize = computed(() => size ?? badgeDefaults.size);
+const resolvedSize = computed(
+  () =>
+    size ??
+    uiConfig.components?.badge?.size ??
+    (['xs', 'sm', 'md'] as const).find((value) => value === uiConfig.defaults?.size) ??
+    badgeDefaults.size,
+);
+const resolvedVariant = computed(
+  () =>
+    variant ??
+    uiConfig.components?.badge?.variant ??
+    (['subtle', 'outline', 'solid'] as const).find(
+      (value) => value === uiConfig.defaults?.variant,
+    ) ??
+    badgeDefaults.variant,
+);
+const classes = computed(() =>
+  cn(badgeVariants({ variant: resolvedVariant.value, size: resolvedSize.value }), customClass),
+);
 </script>
 
 <template>

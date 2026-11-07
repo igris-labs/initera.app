@@ -1,75 +1,73 @@
-import type { VariantProps } from 'class-variance-authority';
-import { cva } from 'class-variance-authority';
-import { cn } from '../../../lib/utils';
-import uiConfig from '../ui.config';
-import type { PrimitiveSize, PrimitiveVariant } from '../ui.types';
+import type { AlertDialogProps as PrimitiveAlertDialogProps } from 'akaza-ui';
+import type * as Akaza from 'akaza-ui';
+import type { HTMLAttributes } from 'vue';
 
-export { default as AlertDialog } from './AlertDialog.vue';
-export const alertDialogDefaults = {
-  size: uiConfig.components?.alertDialog?.size ?? uiConfig.defaults?.size ?? 'sm',
-  variant: uiConfig.components?.alertDialog?.variant ?? uiConfig.defaults?.variant ?? 'default',
-};
+import { resolveVariants, tv } from '../../../utils/ui';
+import type { VariantProps } from '../../../utils/ui';
+import type { UiConfig } from '../ui.types';
 
-export const alertDialogVariants = cva('', {
+export const alertDialogVariants = tv({
+  slots: {
+    overlay: 'fixed inset-0 bg-scrim',
+    content:
+      'max-w-[calc(100vw-2rem)] rounded-xl border border-border bg-popover text-popover-foreground shadow-xl outline-none',
+    header: 'flex flex-col gap-1.5 border-b border-border px-4 py-3',
+    title: 'text-base font-semibold text-highlighted',
+    description: 'text-sm leading-6 text-muted-foreground',
+    body: 'p-4 text-sm leading-6',
+    footer: 'flex flex-wrap items-center justify-end gap-2 border-t border-border px-4 py-3',
+  },
   variants: {
-    variant: { default: '', soft: 'bg-muted', outline: 'border border-outline' },
-    size: { sm: 'text-xs', md: 'text-sm', lg: 'text-base' },
+    width: {
+      xs: {
+        content: 'w-[min(20rem,calc(100vw-2rem))] max-w-none',
+      },
+      sm: {
+        content: 'w-[min(24rem,calc(100vw-2rem))] max-w-none',
+      },
+      md: {
+        content: 'w-[min(32rem,calc(100vw-2rem))] max-w-none',
+      },
+      lg: {
+        content: 'w-[min(40rem,calc(100vw-2rem))] max-w-none',
+      },
+      xl: {
+        content: 'w-[min(48rem,calc(100vw-2rem))] max-w-none',
+      },
+    },
   },
   defaultVariants: {
-    variant: alertDialogDefaults.variant,
-    size: alertDialogDefaults.size,
+    width: 'md',
   },
 });
 export type AlertDialogVariants = VariantProps<typeof alertDialogVariants>;
-
-export const uiParts: Record<string, string> = {
-  overlay: 'fixed inset-0 bg-scrim',
-  content:
-    'fixed top-1/2 left-1/2 z-50 w-[min(32rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-outline bg-elevated p-4 text-foreground shadow-lg',
-  header: 'grid gap-1.5',
-  title: 'font-semibold',
-  description: 'text-sm text-foreground-muted',
-  body: 'py-3 text-sm text-foreground',
-  footer: 'flex justify-end gap-2 pt-4',
-};
-
-export const uiSizes: Record<PrimitiveSize, Record<string, string>> = {
-  sm: {
-    title: 'text-sm',
-    description: 'text-xs',
-  },
-  md: {
-    title: 'text-base',
-    description: 'text-xs',
-  },
-  lg: {
-    title: 'text-lg',
-    description: 'text-sm',
-  },
-};
-
-export function alertDialogUi(
-  size?: PrimitiveSize,
-  variant?: PrimitiveVariant,
-  customClass?: string,
-  overrides?: Record<string, string>,
-): Record<string, string> {
-  const resolvedSize = size ?? alertDialogDefaults.size;
-  const styles = { ...uiParts };
-
-  for (const [part, classes] of Object.entries(uiSizes[resolvedSize])) {
-    if (part in styles) styles[part] = cn(styles[part], classes);
-  }
-
-  styles.content = cn(
-    styles.content,
-    alertDialogVariants({ size: resolvedSize, variant }),
-    customClass,
+export type AlertDialogConfig = Pick<AlertDialogVariants, 'width'>;
+export type AlertDialogSlots = InstanceType<typeof Akaza.AlertDialog>['$slots'];
+export interface AlertDialogProps extends Omit<
+  PrimitiveAlertDialogProps,
+  'ui' | 'class' | 'width'
+> {
+  class?: HTMLAttributes['class'];
+  ui?: Akaza.AlertDialogUi;
+  width?: AlertDialogVariants['width'];
+  modelValue?: boolean;
+}
+export function resolveAlertDialogVariants(
+  props: AlertDialogVariants,
+  config: UiConfig,
+): AlertDialogVariants {
+  return resolveVariants(
+    props,
+    config.components?.alertDialog,
+    config.defaults,
+    alertDialogVariants.variants,
   );
+}
 
-  for (const [part, classes] of Object.entries(overrides ?? {})) {
-    styles[part] = cn(styles[part], classes);
+export { default as AlertDialog } from './AlertDialog.vue';
+
+declare module '../ui.types' {
+  interface UiComponentConfig {
+    alertDialog?: AlertDialogConfig;
   }
-
-  return styles;
 }

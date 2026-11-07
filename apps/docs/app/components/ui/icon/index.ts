@@ -1,19 +1,12 @@
 import { cva } from 'class-variance-authority';
 import type { VariantProps } from 'class-variance-authority';
-import uiConfig from '../ui.config';
 
 export { default as Icon } from './Icon.vue';
 
 export const iconDefaults = {
-  size:
-    (['xs', 'sm', 'md', 'lg'] as const).find(
-      (value) => value === (uiConfig.components?.icon?.size ?? uiConfig.defaults?.size),
-    ) ?? 'sm',
-  variant:
-    (['default', 'muted', 'dimmed', 'info'] as const).find(
-      (value) => value === (uiConfig.components?.icon?.variant ?? uiConfig.defaults?.variant),
-    ) ?? 'default',
-};
+  size: 'sm',
+  variant: 'default',
+} as const;
 
 export const iconVariants = cva('shrink-0', {
   variants: {

@@ -80,13 +80,11 @@ async function copyLink() {
           </p>
 
           <div class="mt-5 flex items-center gap-2">
-            <Button
-              :icon="copied ? 'i-tabler-check' : 'i-tabler-link'"
-              :label="copied ? 'Copied link' : 'Copy link'"
-              variant="ghost"
-              size="xs"
-              @click="copyLink"
-            />
+            <Button variant="ghost" size="xs" @click="copyLink"
+              ><Icon :name="copied ? 'i-tabler-check' : 'i-tabler-link'" size="xs" />{{
+                copied ? 'Copied link' : 'Copy link'
+              }}</Button
+            >
           </div>
         </div>
 

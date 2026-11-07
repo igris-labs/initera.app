@@ -15,6 +15,10 @@ Open the URL printed by Nuxt. The landing, download, and about pages live in `ap
 
 The Nuxt app lives under `app/`. The collection source and frontmatter schema live in `content.config.ts`. `app/composables/useDocsNavigation.ts` loads Nuxt Content navigation for the sidebar, search, breadcrumbs, and adjacent-page links. Keep guide text in Markdown rather than in Vue components.
 
+## UI components
+
+`app/components/ui/` contains the IPEX component set and the site's existing Badge, DatePicker, DropdownMenu, OverlayProvider, and Textarea wrappers. Components are exported from their own `index.ts` files, with local variants and defaults. `app/components/ui/ui.config.ts` is the optional global override. The site theme maps IPEX's semantic tokens to Initera's light and dark colors in `app/assets/css/main.css`. When changing a component, check both themes and the mobile layout.
+
 ## Refresh screenshots
 
 Screenshots come from the running desktop browser preview with test fixtures. They are stored in `apps/docs/public/images/app`. From the repository root, run:

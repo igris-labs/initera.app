@@ -1,57 +1,67 @@
 <script setup lang="ts">
-import { Button as AkazaButton } from 'akaza-ui';
-import { computed, useSlots } from 'vue';
-import type { HTMLAttributes } from 'vue';
-import { cn } from '../../../lib/utils';
-import { buttonDefaults, buttonVariants } from '.';
-import type { ButtonVariants } from '.';
-import { Icon } from '../icon';
+import { Button as ButtonPrimitive } from 'akaza-ui';
+import { computed, useAttrs } from 'vue';
 
-interface Props {
-  label?: string;
-  icon?: string;
-  variant?: ButtonVariants['variant'];
-  size?: ButtonVariants['size'];
-  square?: boolean;
-  color?: ButtonVariants['color'];
-  type?: 'button' | 'submit' | 'reset';
-  disabled?: boolean;
-  class?: HTMLAttributes['class'];
-}
+import { cn } from '../../../utils/ui';
+import uiConfig from '../ui.config';
+import { buttonVariants, resolveButtonVariants } from './index';
+import type { ButtonProps } from './index';
 
-const {
-  label,
-  icon,
-  variant,
-  size,
-  square,
-  color = 'neutral',
-  type = 'button',
-  disabled,
-  class: customClass,
-} = defineProps<Props>();
+defineOptions({ inheritAttrs: false });
+const props = defineProps<ButtonProps>();
+const attrs = useAttrs();
 
-const slots = useSlots();
+const styles = computed(() => buttonVariants(resolveButtonVariants(props, uiConfig)));
 
-const resolvedSize = computed(() => size ?? buttonDefaults.size);
-
-const resolvedSquare = computed(() => square ?? Boolean(icon && !label && !slots.default));
-
-const classes = computed(() =>
-  cn(
-    buttonVariants({ variant, size: resolvedSize.value, square: resolvedSquare.value, color }),
-    customClass,
-  ),
-);
+const primitiveProps = computed(() => {
+  const {
+    color: _color,
+    variant: _variant,
+    size: _size,
+    shape: _shape,
+    class: _class,
+    ui: _ui,
+    ...primitive
+  } = props;
+  return primitive;
+});
 </script>
 
 <template>
-  <AkazaButton :type="type" :disabled="disabled" :class="classes">
-    <Icon
-      v-if="icon"
-      :name="icon"
-      :size="resolvedSize === 'md' || resolvedSize === 'lg' ? 'md' : 'sm'"
-    />
-    <slot>{{ label }}</slot>
-  </AkazaButton>
+  <ButtonPrimitive
+    v-bind="{ ...primitiveProps, ...attrs }"
+    data-slot="button"
+    :class="cn(styles.root(), props.ui?.root, props.class)"
+    :ui="{
+      spinner: cn(styles.spinner(), props.ui?.spinner),
+      loadingText: cn(styles.loadingText(), props.ui?.loadingText),
+    }"
+  >
+    <span :class="cn(styles.content(), props.ui?.content)"><slot /></span>
+    <template #loading>
+      <span class="grid items-center justify-items-center">
+        <span
+          aria-hidden="true"
+          :class="cn(styles.content(), 'invisible col-start-1 row-start-1', props.ui?.content)"
+          ><slot
+        /></span>
+        <span class="col-start-1 row-start-1 inline-flex items-center justify-center">
+          <slot name="loading">
+            <svg
+              :class="cn(styles.spinner(), props.ui?.spinner)"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              aria-hidden="true"
+            >
+              <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+            </svg>
+            <span :class="cn(styles.loadingText(), props.ui?.loadingText)">Loading</span>
+          </slot>
+        </span>
+      </span>
+    </template>
+  </ButtonPrimitive>
 </template>

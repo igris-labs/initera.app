@@ -1,53 +1,33 @@
-import type { VariantProps } from 'class-variance-authority';
-import { cva } from 'class-variance-authority';
-import { cn } from '../../../lib/utils';
-import uiConfig from '../ui.config';
-import type { PrimitiveSize, PrimitiveVariant } from '../ui.types';
+import type { FormProps as PrimitiveFormProps } from 'akaza-ui';
+import type * as Akaza from 'akaza-ui';
+import type { HTMLAttributes } from 'vue';
 
-export { default as Form } from './Form.vue';
-export const formDefaults = {
-  size: uiConfig.components?.form?.size ?? uiConfig.defaults?.size ?? 'sm',
-  variant: uiConfig.components?.form?.variant ?? uiConfig.defaults?.variant ?? 'default',
-};
+import { resolveVariants, tv } from '../../../utils/ui';
+import type { VariantProps } from '../../../utils/ui';
+import type { UiConfig } from '../ui.types';
 
-export const formVariants = cva('', {
-  variants: {
-    variant: { default: '', soft: 'bg-muted', outline: 'border border-outline' },
-    size: { sm: 'text-xs', md: 'text-sm', lg: 'text-base' },
+export const formVariants = tv({
+  slots: {
+    root: 'flex flex-col gap-4',
   },
-  defaultVariants: {
-    variant: formDefaults.variant,
-    size: formDefaults.size,
-  },
+  variants: {},
+  defaultVariants: {},
 });
 export type FormVariants = VariantProps<typeof formVariants>;
+export type FormConfig = Record<string, never>;
+export type FormSlots = InstanceType<typeof Akaza.Form>['$slots'];
+export interface FormProps extends Omit<PrimitiveFormProps, 'ui' | 'class'> {
+  class?: HTMLAttributes['class'];
+  ui?: Akaza.FormUi;
+}
+export function resolveFormVariants(props: FormVariants, config: UiConfig): FormVariants {
+  return resolveVariants(props, config.components?.form, config.defaults, formVariants.variants);
+}
 
-export const uiParts: Record<string, string> = { root: 'grid gap-4' };
+export { default as Form } from './Form.vue';
 
-export const uiSizes: Record<PrimitiveSize, Record<string, string>> = {
-  sm: {},
-  md: {},
-  lg: {},
-};
-
-export function formUi(
-  size?: PrimitiveSize,
-  variant?: PrimitiveVariant,
-  customClass?: string,
-  overrides?: Record<string, string>,
-): Record<string, string> {
-  const resolvedSize = size ?? formDefaults.size;
-  const styles = { ...uiParts };
-
-  for (const [part, classes] of Object.entries(uiSizes[resolvedSize])) {
-    if (part in styles) styles[part] = cn(styles[part], classes);
+declare module '../ui.types' {
+  interface UiComponentConfig {
+    form?: FormConfig;
   }
-
-  styles.root = cn(styles.root, formVariants({ size: resolvedSize, variant }), customClass);
-
-  for (const [part, classes] of Object.entries(overrides ?? {})) {
-    styles[part] = cn(styles[part], classes);
-  }
-
-  return styles;
 }

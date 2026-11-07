@@ -1,19 +1,9 @@
 import { cva } from 'class-variance-authority';
 import type { VariantProps } from 'class-variance-authority';
-import uiConfig from '../ui.config';
 
 export { default as Badge } from './Badge.vue';
 
-export const badgeDefaults = {
-  size:
-    (['xs', 'sm', 'md'] as const).find(
-      (value) => value === (uiConfig.components?.badge?.size ?? uiConfig.defaults?.size),
-    ) ?? 'sm',
-  variant:
-    (['subtle', 'outline', 'solid'] as const).find(
-      (value) => value === (uiConfig.components?.badge?.variant ?? uiConfig.defaults?.variant),
-    ) ?? 'subtle',
-};
+export const badgeDefaults = { size: 'sm', variant: 'subtle' } as const;
 
 export const badgeVariants = cva(
   'inline-flex items-center rounded-md border font-medium whitespace-nowrap',
@@ -34,3 +24,9 @@ export const badgeVariants = cva(
 );
 
 export type BadgeVariants = VariantProps<typeof badgeVariants>;
+
+declare module '../ui.types' {
+  interface UiComponentConfig {
+    badge?: Pick<BadgeVariants, 'size' | 'variant'>;
+  }
+}

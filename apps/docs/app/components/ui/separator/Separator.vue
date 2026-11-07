@@ -1,33 +1,41 @@
 <script setup lang="ts">
-import { separatorUi } from './index';
-import { Separator as AkazaSeparator } from 'akaza-ui';
-import type { SeparatorProps } from 'akaza-ui';
-import { computed } from 'vue';
-import type { PrimitiveSize, PrimitiveVariant } from '../ui.types';
+import { Separator as Primitive } from 'akaza-ui';
+import { computed, useAttrs } from 'vue';
+
+import { cn } from '../../../utils/ui';
+import uiConfig from '../ui.config';
+import { resolveSeparatorVariants, separatorVariants } from './index';
+import type { SeparatorProps, SeparatorSlots } from './index';
 
 defineOptions({ inheritAttrs: false });
-
-const props = defineProps<
-  SeparatorProps & {
-    size?: PrimitiveSize;
-    variant?: PrimitiveVariant;
-    class?: string;
-    ui?: Record<string, string>;
-  }
->();
-
-const akazaProps = computed(() => {
-  const { size, variant, class: customClass, ui, ...rest } = props;
-  return rest;
+// Preserve Akaza defaults when optional props, including Boolean aliases, are omitted.
+const props = withDefaults(defineProps<SeparatorProps>(), {
+  as: undefined,
+  orientation: undefined,
+  decorative: undefined,
+  ui: undefined,
 });
-
-const ui = computed(() => separatorUi(props.size, props.variant, props.class, props.ui));
+defineSlots<SeparatorSlots>();
+const attrs = useAttrs();
+const styles = computed(() => separatorVariants(resolveSeparatorVariants(props, uiConfig)));
+const mergedUi = computed(() => {
+  const overrides = props.ui as Record<string, string | undefined> | undefined;
+  return Object.fromEntries(
+    Object.entries(styles.value).map(([part, style]) => [
+      part,
+      cn(style(), overrides?.[part], part === 'root' ? props.class : undefined),
+    ]),
+  );
+});
+const primitiveProps = computed(() => {
+  const { class: _class, ui: _ui, variant: _variant, ...native } = props;
+  return native;
+});
 </script>
-
 <template>
-  <AkazaSeparator v-bind="{ ...akazaProps, ...$attrs }" :ui="ui">
-    <template v-for="(_, slotName) in $slots" #[slotName]="slotProps">
-      <slot :name="slotName" v-bind="slotProps || {}" />
-    </template>
-  </AkazaSeparator>
+  <component :is="Primitive" v-bind="{ ...primitiveProps, ...attrs }" :ui="mergedUi">
+    <template v-for="(_, name) in $slots" #[name]="scope"
+      ><slot :name="name as keyof SeparatorSlots" v-bind="scope ?? {}"
+    /></template>
+  </component>
 </template>

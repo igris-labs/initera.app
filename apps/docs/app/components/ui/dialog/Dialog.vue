@@ -1,76 +1,76 @@
 <script setup lang="ts">
-import { Dialog as AkazaDialog } from 'akaza-ui';
-import type { DialogUi } from 'akaza-ui';
-import { computed } from 'vue';
-import { cn } from '../../../lib/utils';
-import { dialogVariants } from '.';
-import type { DialogVariants } from '.';
-import { Button } from '../button';
+import { Dialog as Primitive } from 'akaza-ui';
+import { computed, onMounted, ref, useAttrs, useTemplateRef } from 'vue';
 
-interface Props {
-  title: string;
-  description?: string;
-  closeOnBackdropClick?: boolean;
-  variant?: DialogVariants['variant'];
-  size?: DialogVariants['size'];
-  class?: string;
-  ui?: DialogUi;
-}
+import { cn } from '../../../utils/ui';
+import uiConfig from '../ui.config';
+import { dialogVariants, resolveDialogVariants } from './index';
+import type { DialogProps, DialogSlots } from './index';
 
-const {
-  title,
-  description,
-  closeOnBackdropClick,
-  variant,
-  size,
-  class: customClass,
-  ui: uiOverrides,
-} = defineProps<Props>();
-
-const open = defineModel<boolean>('open', { required: true });
-
-const ui = computed(() => ({
-  overlay: cn('fixed inset-0 bg-scrim', uiOverrides?.overlay),
-  content: cn(dialogVariants({ variant, size }), customClass, uiOverrides?.content),
-  header: cn(
-    'flex min-h-12 shrink-0 items-start justify-between gap-4 border-b border-outline px-4 py-3',
-    uiOverrides?.header,
-  ),
-  description: cn('sr-only', uiOverrides?.description),
-  body: cn('min-h-0 overflow-y-auto p-4', uiOverrides?.body),
-  footer: cn(
-    'flex shrink-0 flex-wrap items-center justify-end gap-2 border-t border-outline px-4 py-3',
-    uiOverrides?.footer,
-  ),
-}));
+defineOptions({ inheritAttrs: false });
+// Preserve Akaza defaults when optional props, including Boolean aliases, are omitted.
+const props = withDefaults(defineProps<DialogProps>(), {
+  as: undefined,
+  title: undefined,
+  description: undefined,
+  ariaLabel: undefined,
+  closeOnBackdropClick: undefined,
+  fullscreen: undefined,
+  teleport: undefined,
+  transition: undefined,
+  duration: undefined,
+  ui: undefined,
+  modelValue: undefined,
+});
+defineSlots<DialogSlots>();
+const attrs = useAttrs();
+// Programmatic overlays mount open; let Akaza mount closed so its entrance transition runs.
+const mounted = ref(false);
+onMounted(() => {
+  mounted.value = true;
+});
+const styles = computed(() => dialogVariants(resolveDialogVariants(props, uiConfig)));
+const mergedUi = computed(() => {
+  const overrides = props.ui as Record<string, string | undefined> | undefined;
+  return Object.fromEntries(
+    Object.entries(styles.value).map(([part, style]) => [
+      part,
+      cn(style(), overrides?.[part], part === 'content' ? props.class : undefined),
+    ]),
+  );
+});
+const primitiveProps = computed(() => {
+  const { class: _class, ui: _ui, width: _width, ...native } = props;
+  return { ...native, modelValue: props.modelValue === true ? mounted.value : props.modelValue };
+});
+const primitive = useTemplateRef<InstanceType<typeof Primitive>>('primitive');
+defineExpose({
+  get open() {
+    return primitive.value!.open;
+  },
+  get close() {
+    return primitive.value!.close;
+  },
+  get toggle() {
+    return primitive.value!.toggle;
+  },
+  get titleId() {
+    return primitive.value!.titleId;
+  },
+  get descriptionId() {
+    return primitive.value!.descriptionId;
+  },
+});
 </script>
-
 <template>
-  <AkazaDialog
-    v-model="open"
-    :ui="ui"
-    :title="title"
-    :description="description"
-    :close-on-backdrop-click="closeOnBackdropClick"
+  <component
+    :is="Primitive"
+    ref="primitive"
+    v-bind="{ ...primitiveProps, ...attrs }"
+    :ui="mergedUi"
   >
-    <template #header="{ close, titleId }">
-      <slot name="header" v-bind="{ close, titleId }">
-        <div>
-          <h2 :id="titleId" class="text-sm font-semibold text-foreground-highlighted">
-            {{ title }}
-          </h2>
-          <p v-if="description" class="mt-1 text-sm text-foreground-muted">{{ description }}</p>
-        </div>
-        <Button
-          icon="i-tabler-x"
-          variant="ghost"
-          size="icon"
-          aria-label="Close dialog"
-          @click="close"
-        />
-      </slot>
-    </template>
-    <template #body><slot name="body" /></template>
-    <template #footer><slot name="footer" /></template>
-  </AkazaDialog>
+    <template v-for="(_, name) in $slots" #[name]="scope"
+      ><slot :name="name as keyof DialogSlots" v-bind="scope ?? {}"
+    /></template>
+  </component>
 </template>

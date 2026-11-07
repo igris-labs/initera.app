@@ -1,61 +1,73 @@
-import type { VariantProps } from 'class-variance-authority';
-import { cva } from 'class-variance-authority';
-import { cn } from '../../../lib/utils';
-import uiConfig from '../ui.config';
-import type { PrimitiveSize, PrimitiveVariant } from '../ui.types';
+import type { ToggleProps as PrimitiveToggleProps } from 'akaza-ui';
+import type * as Akaza from 'akaza-ui';
+import type { HTMLAttributes } from 'vue';
 
-export const toggleDefaults = {
-  size: uiConfig.components?.toggle?.size ?? uiConfig.defaults?.size ?? 'sm',
-  variant: uiConfig.components?.toggle?.variant ?? uiConfig.defaults?.variant ?? 'default',
-};
+import { resolveVariants, tv } from '../../../utils/ui';
+import type { VariantProps } from '../../../utils/ui';
+import type { UiConfig } from '../ui.types';
 
-export const toggleVariants = cva('', {
+export const toggleVariants = tv({
+  slots: {
+    root: 'inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md border border-transparent text-muted-foreground transition-colors duration-150 ease-interaction outline-none hover:bg-muted hover:text-highlighted focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 data-akaza-disabled:pointer-events-none data-akaza-disabled:opacity-50 data-[akaza-state=on]:border-primary data-[akaza-state=on]:bg-linear-to-b data-[akaza-state=on]:from-primary/85 data-[akaza-state=on]:to-primary data-[akaza-state=on]:text-primary-foreground data-[akaza-state=on]:shadow-[0_1px_2px_oklch(0_0_0/0.14),inset_0_1px_0_oklch(1_0_0/0.14)] motion-reduce:transition-none [@media(pointer:coarse)]:min-h-11 [@media(pointer:coarse)]:min-w-11',
+  },
   variants: {
-    variant: { default: '', soft: 'bg-muted', outline: 'border border-outline' },
-    size: { sm: 'text-xs', md: 'text-sm', lg: 'text-base' },
+    size: {
+      xs: {
+        root: 'min-h-6 gap-1 rounded-[calc(var(--radius)*0.5)] px-2 py-1 text-xs leading-4',
+      },
+      sm: {
+        root: 'min-h-7 gap-1 rounded-sm px-2.5 py-1 text-[13px] leading-4',
+      },
+      md: {
+        root: 'min-h-8 gap-1.5 rounded-md px-3 py-1 text-sm leading-5',
+      },
+      lg: {
+        root: 'min-h-9 gap-2 rounded-lg px-3.5 py-1 text-sm leading-5',
+      },
+      xl: {
+        root: 'min-h-10 gap-2.5 rounded-[calc(var(--radius)*1.2)] px-4 py-1 text-base leading-6',
+      },
+    },
+    variant: {
+      soft: {
+        root: 'bg-primary/7.5 text-primary hover:bg-primary/11.25',
+      },
+      outline: {
+        root: 'border border-input',
+      },
+    },
   },
   defaultVariants: {
-    variant: toggleDefaults.variant,
-    size: toggleDefaults.size,
+    size: 'sm',
+    variant: 'soft',
   },
 });
 export type ToggleVariants = VariantProps<typeof toggleVariants>;
+export type ToggleConfig = Pick<ToggleVariants, 'size' | 'variant'>;
+export type ToggleSlots = InstanceType<typeof Akaza.Toggle>['$slots'];
+export interface ToggleProps extends Omit<
+  PrimitiveToggleProps,
+  'ui' | 'class' | 'size' | 'variant'
+> {
+  class?: HTMLAttributes['class'];
+  ui?: Akaza.ToggleUi;
+  size?: ToggleVariants['size'];
+  variant?: ToggleVariants['variant'];
+  modelValue?: boolean;
+}
+export function resolveToggleVariants(props: ToggleVariants, config: UiConfig): ToggleVariants {
+  return resolveVariants(
+    props,
+    config.components?.toggle,
+    config.defaults,
+    toggleVariants.variants,
+  );
+}
+
 export { default as Toggle } from './Toggle.vue';
 
-export const uiParts: Record<string, string> = {
-  root: 'inline-flex min-h-7 items-center justify-center rounded-lg border border-transparent px-2.5 text-xs font-medium hover:bg-muted data-[akaza-state=on]:border-outline data-[akaza-state=on]:bg-accented',
-};
-
-export const uiSizes: Record<PrimitiveSize, Record<string, string>> = {
-  sm: {
-    root: 'min-h-7 gap-1.5 px-2.5 text-xs',
-  },
-  md: {
-    root: 'min-h-8 gap-1.5 px-3 text-sm',
-  },
-  lg: {
-    root: 'min-h-9 gap-2 px-3.5 text-base',
-  },
-};
-
-export function toggleUi(
-  size?: PrimitiveSize,
-  variant?: PrimitiveVariant,
-  customClass?: string,
-  overrides?: Record<string, string>,
-): Record<string, string> {
-  const resolvedSize = size ?? toggleDefaults.size;
-  const styles = { ...uiParts };
-
-  for (const [part, classes] of Object.entries(uiSizes[resolvedSize])) {
-    if (part in styles) styles[part] = cn(styles[part], classes);
+declare module '../ui.types' {
+  interface UiComponentConfig {
+    toggle?: ToggleConfig;
   }
-
-  styles.root = cn(styles.root, toggleVariants({ size: resolvedSize, variant }), customClass);
-
-  for (const [part, classes] of Object.entries(overrides ?? {})) {
-    styles[part] = cn(styles[part], classes);
-  }
-
-  return styles;
 }

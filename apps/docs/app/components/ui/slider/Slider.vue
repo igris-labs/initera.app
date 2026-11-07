@@ -1,33 +1,56 @@
 <script setup lang="ts">
-import { sliderUi } from './index';
-import { Slider as AkazaSlider } from 'akaza-ui';
-import type { SliderProps } from 'akaza-ui';
-import { computed } from 'vue';
-import type { PrimitiveSize, PrimitiveVariant } from '../ui.types';
+import { Slider as Primitive } from 'akaza-ui';
+import { computed, useAttrs } from 'vue';
+
+import { cn } from '../../../utils/ui';
+import uiConfig from '../ui.config';
+import { resolveSliderVariants, sliderVariants } from './index';
+import type { SliderProps, SliderSlots } from './index';
 
 defineOptions({ inheritAttrs: false });
-
-const props = defineProps<
-  SliderProps & {
-    size?: PrimitiveSize;
-    variant?: PrimitiveVariant;
-    class?: string;
-    ui?: Record<string, string>;
-  }
->();
-
-const akazaProps = computed(() => {
-  const { size, variant, class: customClass, ui, ...rest } = props;
-  return rest;
+// Preserve Akaza defaults when optional props, including Boolean aliases, are omitted.
+const props = withDefaults(defineProps<SliderProps>(), {
+  id: undefined,
+  name: undefined,
+  min: undefined,
+  max: undefined,
+  step: undefined,
+  orientation: undefined,
+  minStepsBetweenThumbs: undefined,
+  inverted: undefined,
+  thumbAlignment: undefined,
+  required: undefined,
+  disabled: undefined,
+  invalid: undefined,
+  ariaLabel: undefined,
+  ariaLabels: undefined,
+  ariaLabelledby: undefined,
+  ariaDescribedby: undefined,
+  getValueLabel: undefined,
+  ui: undefined,
+  modelValue: undefined,
 });
-
-const ui = computed(() => sliderUi(props.size, props.variant, props.class, props.ui));
+defineSlots<SliderSlots>();
+const attrs = useAttrs();
+const styles = computed(() => sliderVariants(resolveSliderVariants(props, uiConfig)));
+const mergedUi = computed(() => {
+  const overrides = props.ui as Record<string, string | undefined> | undefined;
+  return Object.fromEntries(
+    Object.entries(styles.value).map(([part, style]) => [
+      part,
+      cn(style(), overrides?.[part], part === 'root' ? props.class : undefined),
+    ]),
+  );
+});
+const primitiveProps = computed(() => {
+  const { class: _class, ui: _ui, size: _size, ...native } = props;
+  return native;
+});
 </script>
-
 <template>
-  <AkazaSlider v-bind="{ ...akazaProps, ...$attrs }" :ui="ui">
-    <template v-for="(_, slotName) in $slots" #[slotName]="slotProps">
-      <slot :name="slotName" v-bind="slotProps || {}" />
-    </template>
-  </AkazaSlider>
+  <component :is="Primitive" v-bind="{ ...primitiveProps, ...attrs }" :ui="mergedUi">
+    <template v-for="(_, name) in $slots" #[name]="scope"
+      ><slot :name="name as keyof SliderSlots" v-bind="scope ?? {}"
+    /></template>
+  </component>
 </template>

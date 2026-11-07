@@ -1,38 +1,59 @@
 <script setup lang="ts">
-import { numberFieldUi } from './index';
-import { NumberField as AkazaNumberField } from 'akaza-ui';
-import type { NumberFieldProps } from 'akaza-ui';
-import { computed } from 'vue';
-import type { PrimitiveSize, PrimitiveVariant } from '../ui.types';
+import { NumberField as Primitive } from 'akaza-ui';
+import { computed, useAttrs } from 'vue';
+
+import { cn } from '../../../utils/ui';
+import uiConfig from '../ui.config';
+import { numberFieldVariants, resolveNumberFieldVariants } from './index';
+import type { NumberFieldProps, NumberFieldSlots } from './index';
 
 defineOptions({ inheritAttrs: false });
-
-const {
-  size,
-  variant,
-  class: customClass,
-  ui: customUi,
-  stepSnapping = true,
-  focusOnChange = true,
-  ...forwardedProps
-} = defineProps<
-  NumberFieldProps & {
-    size?: PrimitiveSize;
-    variant?: PrimitiveVariant;
-    class?: string;
-    ui?: Record<string, string>;
-  }
->();
-
-const akazaProps = computed(() => ({ ...forwardedProps, stepSnapping, focusOnChange }));
-
-const ui = computed(() => numberFieldUi(size, variant, customClass, customUi));
+// Preserve Akaza defaults when optional props, including Boolean aliases, are omitted.
+const props = withDefaults(defineProps<NumberFieldProps>(), {
+  id: undefined,
+  name: undefined,
+  min: undefined,
+  max: undefined,
+  step: undefined,
+  placeholder: undefined,
+  required: undefined,
+  disabled: undefined,
+  readonly: undefined,
+  invalid: undefined,
+  stepSnapping: undefined,
+  disableWheelChange: undefined,
+  invertWheelChange: undefined,
+  focusOnChange: undefined,
+  scrubLabel: undefined,
+  scrubStep: undefined,
+  disableScrub: undefined,
+  getValueLabel: undefined,
+  ariaLabel: undefined,
+  ariaDescribedby: undefined,
+  ui: undefined,
+  modelValue: undefined,
+});
+defineSlots<NumberFieldSlots>();
+const attrs = useAttrs();
+const styles = computed(() => numberFieldVariants(resolveNumberFieldVariants(props, uiConfig)));
+const mergedUi = computed(() => {
+  const overrides = props.ui as Record<string, string | undefined> | undefined;
+  return Object.fromEntries(
+    Object.entries(styles.value).map(([part, style]) => [
+      part,
+      cn(style(), overrides?.[part], part === 'root' ? props.class : undefined),
+    ]),
+  );
+});
+const primitiveProps = computed(() => {
+  const { class: _class, ui: _ui, size: _size, variant: _variant, ...native } = props;
+  return native;
+});
 </script>
-
 <template>
-  <AkazaNumberField v-bind="{ ...akazaProps, ...$attrs }" :ui="ui">
-    <template v-for="(_, slotName) in $slots" #[slotName]="slotProps">
-      <slot :name="slotName" v-bind="slotProps || {}" />
-    </template>
-  </AkazaNumberField>
+  <component :is="Primitive" v-bind="{ ...primitiveProps, ...attrs }" :ui="mergedUi">
+    <template v-for="(_, name) in $slots" #[name]="scope"
+      ><slot :name="name as keyof NumberFieldSlots" v-bind="scope ?? {}"
+    /></template>
+  </component>
 </template>

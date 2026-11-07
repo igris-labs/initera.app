@@ -25,9 +25,7 @@ useSeoMeta({
       </p>
     </div>
 
-    <div
-      class="mt-16 grid items-start gap-12 border-t border-outline pt-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20"
-    >
+    <div class="mt-16 grid items-start gap-12 pt-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20">
       <figure class="overflow-hidden rounded-[0.6rem] border border-outline bg-muted">
         <NuxtImg
           src="/images/app/project-overview.png"
@@ -80,7 +78,7 @@ useSeoMeta({
       </div>
     </div>
 
-    <div class="mt-20 border-t border-outline pt-8 text-sm text-foreground-muted">
+    <div class="mt-20 pt-8 text-sm text-foreground-muted">
       <p class="font-medium text-foreground-highlighted">About the author</p>
       <p class="mt-2">
         Created by

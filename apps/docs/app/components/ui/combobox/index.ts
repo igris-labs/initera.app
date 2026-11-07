@@ -1,77 +1,121 @@
-import type { VariantProps } from 'class-variance-authority';
-import { cva } from 'class-variance-authority';
-import { cn } from '../../../lib/utils';
-import uiConfig from '../ui.config';
-import type { PrimitiveSize, PrimitiveVariant } from '../ui.types';
+import type { ComboboxProps as PrimitiveComboboxProps } from 'akaza-ui';
+import type * as Akaza from 'akaza-ui';
+import type { HTMLAttributes } from 'vue';
 
-export { default as Combobox } from './Combobox.vue';
-export const comboboxDefaults = {
-  size: uiConfig.components?.combobox?.size ?? uiConfig.defaults?.size ?? 'sm',
-  variant: uiConfig.components?.combobox?.variant ?? uiConfig.defaults?.variant ?? 'default',
-};
+import { resolveVariants, tv } from '../../../utils/ui';
+import type { VariantProps } from '../../../utils/ui';
+import type { UiConfig } from '../ui.types';
 
-export const comboboxVariants = cva('', {
+export const comboboxVariants = tv({
+  slots: {
+    root: 'relative flex flex-wrap items-center gap-1.5',
+    input:
+      'min-w-0 flex-1 border border-input bg-background text-foreground shadow-none transition-colors duration-150 ease-interaction outline-none placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:focus-visible:ring-destructive/25 data-akaza-disabled:pointer-events-none data-akaza-disabled:opacity-50 data-akaza-focused:ring-1 data-akaza-focused:ring-ring aria-invalid:data-akaza-focused:ring-destructive/25 data-akaza-invalid:border-destructive data-akaza-invalid:focus-visible:ring-destructive/25 data-akaza-invalid:data-akaza-focused:ring-destructive/25 motion-reduce:transition-none [@media(pointer:coarse)]:min-h-11',
+    tags: 'flex flex-wrap gap-1',
+    tag: 'inline-flex items-center gap-1 rounded border border-border bg-muted px-1.5 py-0.5 text-xs',
+    tagLabel: 'truncate',
+    remove:
+      'inline-flex size-4 shrink-0 items-center justify-center gap-1.5 rounded-md text-muted-foreground transition-colors duration-150 ease-interaction outline-none hover:bg-muted hover:text-highlighted focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 data-akaza-disabled:pointer-events-none data-akaza-disabled:opacity-50 motion-reduce:transition-none [@media(pointer:coarse)]:min-h-11 [@media(pointer:coarse)]:min-w-11',
+    clear:
+      'inline-flex size-6 shrink-0 items-center justify-center gap-1.5 rounded-md text-muted-foreground transition-colors duration-150 ease-interaction outline-none hover:bg-muted hover:text-highlighted focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 data-akaza-disabled:pointer-events-none data-akaza-disabled:opacity-50 motion-reduce:transition-none [@media(pointer:coarse)]:min-h-11 [@media(pointer:coarse)]:min-w-11',
+    hiddenInput: 'sr-only',
+    content:
+      'z-50 max-w-[calc(100vw-2rem)] min-w-40 overflow-hidden rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-lg motion-reduce:transition-none',
+    viewport: 'max-h-72 overflow-y-auto',
+    empty: 'px-3 py-6 text-center text-sm text-muted-foreground',
+    loading: 'px-3 py-4 text-sm text-muted-foreground',
+    groupLabel: 'px-2 py-1.5 text-xs font-medium text-muted-foreground',
+    separator: 'my-1 h-px bg-border',
+    option:
+      'relative isolate flex cursor-pointer items-center gap-2 rounded-md text-left text-foreground transition-colors duration-150 ease-interaction outline-none select-none before:pointer-events-none before:absolute before:inset-x-0 before:inset-y-px before:-z-10 before:rounded-[inherit] before:transition-colors before:duration-150 before:ease-interaction hover:before:bg-muted focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 data-akaza-disabled:pointer-events-none data-akaza-disabled:opacity-50 data-akaza-highlighted:before:bg-muted data-[akaza-state=checked]:text-foreground data-[akaza-state=checked]:before:bg-muted motion-reduce:transition-none motion-reduce:before:transition-none [@media(pointer:coarse)]:min-h-11',
+    indicator: 'order-last ms-auto size-4 shrink-0 text-primary',
+    optionText: 'flex min-w-0 flex-1 flex-col',
+    optionLabel: 'truncate',
+    optionDescription: 'text-xs text-muted-foreground',
+    create:
+      'flex cursor-pointer items-center gap-2 rounded-md text-left text-foreground transition-colors duration-150 ease-interaction outline-none select-none hover:bg-muted focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 data-akaza-disabled:pointer-events-none data-akaza-disabled:opacity-50 data-akaza-highlighted:bg-muted data-[akaza-state=checked]:bg-muted data-[akaza-state=checked]:text-foreground motion-reduce:transition-none [@media(pointer:coarse)]:min-h-11',
+  },
   variants: {
-    variant: { default: '', soft: 'bg-muted', outline: 'border border-outline' },
-    size: { sm: 'text-xs', md: 'text-sm', lg: 'text-base' },
+    size: {
+      xs: {
+        input: 'h-6 gap-1 rounded-[calc(var(--radius)*0.5)] px-2 text-xs leading-4',
+        option: 'min-h-6 gap-1 rounded-[calc(var(--radius)*0.5)] px-2 py-1 text-xs leading-4',
+        create: 'min-h-6 gap-1 rounded-[calc(var(--radius)*0.5)] px-2 py-1 text-xs leading-4',
+        indicator: 'size-3',
+      },
+      sm: {
+        input: 'h-7 gap-1 rounded-sm px-2.5 text-[13px] leading-4',
+        option: 'min-h-7 gap-1 rounded-sm px-2.5 py-1 text-[13px] leading-4',
+        create: 'min-h-7 gap-1 rounded-sm px-2.5 py-1 text-[13px] leading-4',
+        indicator: 'size-3.5',
+      },
+      md: {
+        input: 'h-8 gap-1.5 rounded-md px-3 text-sm leading-5',
+        option: 'min-h-8 gap-1.5 rounded-md px-3 py-1 text-sm leading-5',
+        create: 'min-h-8 gap-1.5 rounded-md px-3 py-1 text-sm leading-5',
+        indicator: 'size-4',
+      },
+      lg: {
+        input: 'h-9 gap-2 rounded-lg px-3.5 text-sm leading-5',
+        option: 'min-h-9 gap-2 rounded-lg px-3.5 py-1 text-sm leading-5',
+        create: 'min-h-9 gap-2 rounded-lg px-3.5 py-1 text-sm leading-5',
+        indicator: 'size-4.5',
+      },
+      xl: {
+        input: 'h-10 gap-2.5 rounded-[calc(var(--radius)*1.2)] px-4 text-base leading-6',
+        option: 'min-h-10 gap-2.5 rounded-[calc(var(--radius)*1.2)] px-4 py-1 text-base leading-6',
+        create: 'min-h-10 gap-2.5 rounded-[calc(var(--radius)*1.2)] px-4 py-1 text-base leading-6',
+        indicator: 'size-5',
+      },
+    },
+    variant: {
+      outline: {
+        input: 'border-input bg-background',
+      },
+      soft: {
+        input: 'border-transparent bg-muted',
+      },
+      bare: {
+        input: 'border-transparent bg-transparent focus-visible:ring-0 data-akaza-focused:ring-0',
+      },
+    },
   },
   defaultVariants: {
-    variant: comboboxDefaults.variant,
-    size: comboboxDefaults.size,
+    size: 'sm',
+    variant: 'outline',
   },
 });
 export type ComboboxVariants = VariantProps<typeof comboboxVariants>;
-
-export const uiParts: Record<string, string> = {
-  root: 'relative text-sm',
-  input:
-    'w-full rounded-lg border border-outline bg-default px-2.5 text-foreground outline-none focus-visible:ring-2 focus-visible:ring-inverted/15',
-  content: 'z-50 rounded-lg border border-outline bg-elevated text-foreground shadow-lg',
-  option:
-    'flex cursor-pointer items-center rounded-md text-foreground outline-none transition-colors duration-100 hover:bg-accented focus-visible:bg-accented data-akaza-disabled:cursor-not-allowed data-akaza-disabled:opacity-40',
-  empty: 'p-2 text-xs text-foreground-muted',
-};
-
-export const uiSizes: Record<PrimitiveSize, Record<string, string>> = {
-  sm: {
-    option: 'min-h-7 px-2 text-xs',
-    content: 'p-1 min-w-36',
-    input: 'min-h-7 gap-1.5 px-2.5 text-xs',
-  },
-  md: {
-    option: 'min-h-8 px-2.5 text-sm',
-    content: 'p-1.5 min-w-44',
-    input: 'min-h-8 gap-1.5 px-3 text-sm',
-  },
-  lg: {
-    option: 'min-h-9 px-3 text-base',
-    content: 'p-2 min-w-56',
-    input: 'min-h-9 gap-2 px-3.5 text-base',
-  },
-};
-
-export function comboboxUi(
-  size?: PrimitiveSize,
-  variant?: PrimitiveVariant,
-  customClass?: string,
-  overrides?: Record<string, string>,
-): Record<string, string> {
-  const resolvedSize = size ?? comboboxDefaults.size;
-  const styles = { ...uiParts };
-
-  for (const [part, classes] of Object.entries(uiSizes[resolvedSize])) {
-    if (part in styles) styles[part] = cn(styles[part], classes);
-  }
-
-  styles.content = cn(
-    styles.content,
-    comboboxVariants({ size: resolvedSize, variant }),
-    customClass,
+export type ComboboxConfig = Pick<ComboboxVariants, 'size' | 'variant'>;
+export type ComboboxSlots = InstanceType<typeof Akaza.Combobox>['$slots'];
+export interface ComboboxProps extends Omit<
+  PrimitiveComboboxProps,
+  'ui' | 'class' | 'size' | 'variant'
+> {
+  class?: HTMLAttributes['class'];
+  ui?: Akaza.ComboboxUi;
+  size?: ComboboxVariants['size'];
+  variant?: ComboboxVariants['variant'];
+  modelValue?: Akaza.ComboboxModelValue;
+  open?: boolean;
+  search?: string;
+}
+export function resolveComboboxVariants(
+  props: ComboboxVariants,
+  config: UiConfig,
+): ComboboxVariants {
+  return resolveVariants(
+    props,
+    config.components?.combobox,
+    config.defaults,
+    comboboxVariants.variants,
   );
+}
 
-  for (const [part, classes] of Object.entries(overrides ?? {})) {
-    styles[part] = cn(styles[part], classes);
+export { default as Combobox } from './Combobox.vue';
+
+declare module '../ui.types' {
+  interface UiComponentConfig {
+    combobox?: ComboboxConfig;
   }
-
-  return styles;
 }

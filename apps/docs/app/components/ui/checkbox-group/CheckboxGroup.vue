@@ -1,33 +1,62 @@
 <script setup lang="ts">
-import { checkboxGroupUi } from './index';
-import { CheckboxGroup as AkazaCheckboxGroup } from 'akaza-ui';
-import type { CheckboxGroupProps } from 'akaza-ui';
-import { computed } from 'vue';
-import type { PrimitiveSize, PrimitiveVariant } from '../ui.types';
+import { CheckboxGroup as Primitive } from 'akaza-ui';
+import { computed, useAttrs } from 'vue';
+
+import { cn, mergeRecipeSlots } from '../../../utils/ui';
+import { checkboxVariants } from '../checkbox';
+import uiConfig from '../ui.config';
+import { checkboxGroupVariants, resolveCheckboxGroupVariants } from './index';
+import type { CheckboxGroupProps, CheckboxGroupSlots } from './index';
 
 defineOptions({ inheritAttrs: false });
-
-const props = defineProps<
-  CheckboxGroupProps & {
-    size?: PrimitiveSize;
-    variant?: PrimitiveVariant;
-    class?: string;
-    ui?: Record<string, string>;
-  }
->();
-
-const akazaProps = computed(() => {
-  const { size, variant, class: customClass, ui, ...rest } = props;
-  return rest;
+// Preserve Akaza defaults when optional props, including Boolean aliases, are omitted.
+const props = withDefaults(defineProps<CheckboxGroupProps>(), {
+  valueKey: undefined,
+  labelKey: undefined,
+  descriptionKey: undefined,
+  disabledKey: undefined,
+  allValues: undefined,
+  parent: undefined,
+  parentLabel: undefined,
+  parentDescription: undefined,
+  disabled: undefined,
+  required: undefined,
+  orientation: undefined,
+  legend: undefined,
+  name: undefined,
+  ariaLabel: undefined,
+  ariaLabelledby: undefined,
+  ui: undefined,
+  modelValue: undefined,
 });
-
-const ui = computed(() => checkboxGroupUi(props.size, props.variant, props.class, props.ui));
+defineSlots<CheckboxGroupSlots>();
+const attrs = useAttrs();
+const resolved = computed(() => resolveCheckboxGroupVariants(props, uiConfig));
+const styles = computed(() => checkboxGroupVariants(resolved.value));
+const mergedUi = computed(() => {
+  const overrides = props.ui as Record<string, string | undefined> | undefined;
+  const flat = Object.fromEntries(
+    Object.entries(styles.value)
+      .filter(([part]) => !['checkbox'].includes(part))
+      .map(([part, style]) => [
+        part,
+        cn(style(), overrides?.[part], part === 'root' ? props.class : undefined),
+      ]),
+  );
+  return {
+    ...flat,
+    checkbox: mergeRecipeSlots(checkboxVariants({ size: resolved.value.size }), props.ui?.checkbox),
+  };
+});
+const primitiveProps = computed(() => {
+  const { class: _class, ui: _ui, size: _size, ...native } = props;
+  return native;
+});
 </script>
-
 <template>
-  <AkazaCheckboxGroup v-bind="{ ...akazaProps, ...$attrs }" :ui="ui">
-    <template v-for="(_, slotName) in $slots" #[slotName]="slotProps">
-      <slot :name="slotName" v-bind="slotProps || {}" />
-    </template>
-  </AkazaCheckboxGroup>
+  <component :is="Primitive" v-bind="{ ...primitiveProps, ...attrs }" :ui="mergedUi">
+    <template v-for="(_, name) in $slots" #[name]="scope"
+      ><slot :name="name as keyof CheckboxGroupSlots" v-bind="scope ?? {}"
+    /></template>
+  </component>
 </template>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
+import { Accordion } from '../components/ui/accordion';
 import { Icon } from '../components/ui/icon';
 
 interface ReleaseAsset {
@@ -35,6 +36,26 @@ const loadFailed = ref(false);
 const releasesUrl = 'https://github.com/igris-labs/initera.app/releases';
 const textLink =
   'inline-flex items-center gap-1.5 text-xs text-foreground-highlighted no-underline hover:underline underline-offset-4';
+const questions = [
+  {
+    value: 'account',
+    label: 'Do I need to create an account?',
+    content:
+      'No. The current desktop app works with a local workspace and does not require an account.',
+  },
+  {
+    value: 'updates',
+    label: 'How do updates work?',
+    content:
+      'Initera can check for an available release from the Help menu. You can also download the latest installer from this page or GitHub.',
+  },
+  {
+    value: 'move',
+    label: 'How do I move my work to another computer?',
+    content:
+      'Create a backup in Settings, copy that backup to the other computer, and import it there. Review the import summary before restoring.',
+  },
+];
 
 const platforms = computed(() => {
   const assets =
@@ -212,5 +233,59 @@ onMounted(async () => {
         Installation guide <Icon name="i-tabler-arrow-right" size="sm" />
       </NuxtLink>
     </div>
+
+    <section
+      class="mt-24 grid gap-12 pt-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20"
+      aria-labelledby="install-heading"
+    >
+      <div>
+        <h2
+          id="install-heading"
+          class="text-3xl font-semibold tracking-tight text-foreground-highlighted"
+        >
+          After downloading
+        </h2>
+        <p class="mt-4 max-w-md text-sm leading-7 text-foreground-muted">
+          Open the file for your platform and follow its install steps. Launch Initera, then create
+          a workspace to begin. Your first workspace is stored on that computer.
+        </p>
+      </div>
+      <ol class="border-t border-outline text-sm">
+        <li class="grid grid-cols-[2rem_1fr] gap-4 border-b border-outline py-5">
+          <span class="text-foreground-dimmed">01</span
+          ><span>Install and open the desktop app.</span>
+        </li>
+        <li class="grid grid-cols-[2rem_1fr] gap-4 border-b border-outline py-5">
+          <span class="text-foreground-dimmed">02</span
+          ><span>Create a workspace and your first issue or project.</span>
+        </li>
+        <li class="grid grid-cols-[2rem_1fr] gap-4 border-b border-outline py-5">
+          <span class="text-foreground-dimmed">03</span
+          ><span>Use Settings to make a backup when you have work to keep.</span>
+        </li>
+      </ol>
+    </section>
+
+    <section
+      class="mt-24 grid gap-12 pt-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20"
+      aria-labelledby="download-faq-heading"
+    >
+      <h2
+        id="download-faq-heading"
+        class="text-3xl font-semibold tracking-tight text-foreground-highlighted"
+      >
+        Questions
+      </h2>
+      <Accordion
+        :items="questions"
+        collapsible
+        size="md"
+        :ui="{
+          root: 'border-t border-outline',
+          trigger: 'py-5 text-left text-base font-medium text-foreground-highlighted',
+          content: 'pb-5 text-sm leading-7 text-foreground-muted',
+        }"
+      />
+    </section>
   </div>
 </template>

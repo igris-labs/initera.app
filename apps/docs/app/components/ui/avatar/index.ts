@@ -1,66 +1,61 @@
-import type { VariantProps } from 'class-variance-authority';
-import { cva } from 'class-variance-authority';
-import { cn } from '../../../lib/utils';
-import uiConfig from '../ui.config';
-import type { PrimitiveSize, PrimitiveVariant } from '../ui.types';
+import type { AvatarProps as PrimitiveAvatarProps } from 'akaza-ui';
+import type * as Akaza from 'akaza-ui';
+import type { HTMLAttributes } from 'vue';
 
-export { default as Avatar } from './Avatar.vue';
-export const avatarDefaults = {
-  size: uiConfig.components?.avatar?.size ?? uiConfig.defaults?.size ?? 'sm',
-  variant: uiConfig.components?.avatar?.variant ?? uiConfig.defaults?.variant ?? 'default',
-};
+import { resolveVariants, tv } from '../../../utils/ui';
+import type { VariantProps } from '../../../utils/ui';
+import type { UiConfig } from '../ui.types';
 
-export const avatarVariants = cva('', {
+export const avatarVariants = tv({
+  slots: {
+    root: 'inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-muted text-foreground',
+    image: 'size-full object-cover',
+    fallback: 'flex size-full items-center justify-center font-medium',
+  },
   variants: {
-    variant: { default: '', soft: 'bg-muted', outline: 'border border-outline' },
-    size: { sm: 'text-xs', md: 'text-sm', lg: 'text-base' },
+    size: {
+      xs: {
+        root: 'size-7 text-xs leading-4',
+      },
+      sm: {
+        root: 'size-8 text-[13px] leading-4',
+      },
+      md: {
+        root: 'size-9 text-sm leading-5',
+      },
+      lg: {
+        root: 'size-10 text-sm leading-5',
+      },
+      xl: {
+        root: 'size-11 text-base leading-6',
+      },
+    },
   },
   defaultVariants: {
-    variant: avatarDefaults.variant,
-    size: avatarDefaults.size,
+    size: 'sm',
   },
 });
 export type AvatarVariants = VariantProps<typeof avatarVariants>;
+export type AvatarConfig = Pick<AvatarVariants, 'size'>;
+export type AvatarSlots = InstanceType<typeof Akaza.Avatar>['$slots'];
+export interface AvatarProps extends Omit<PrimitiveAvatarProps, 'ui' | 'class' | 'size'> {
+  class?: HTMLAttributes['class'];
+  ui?: Akaza.AvatarUi;
+  size?: AvatarVariants['size'];
+}
+export function resolveAvatarVariants(props: AvatarVariants, config: UiConfig): AvatarVariants {
+  return resolveVariants(
+    props,
+    config.components?.avatar,
+    config.defaults,
+    avatarVariants.variants,
+  );
+}
 
-export const uiParts: Record<string, string> = {
-  root: 'inline-flex size-8 shrink-0 overflow-hidden rounded-full bg-muted',
-  image: 'size-full object-cover',
-  fallback: 'flex size-full items-center justify-center text-xs font-medium text-foreground-muted',
-};
+export { default as Avatar } from './Avatar.vue';
 
-export const uiSizes: Record<PrimitiveSize, Record<string, string>> = {
-  sm: {
-    root: 'size-6',
-    fallback: 'text-xs',
-  },
-  md: {
-    root: 'size-8',
-    fallback: 'text-sm',
-  },
-  lg: {
-    root: 'size-10',
-    fallback: 'text-base',
-  },
-};
-
-export function avatarUi(
-  size?: PrimitiveSize,
-  variant?: PrimitiveVariant,
-  customClass?: string,
-  overrides?: Record<string, string>,
-): Record<string, string> {
-  const resolvedSize = size ?? avatarDefaults.size;
-  const styles = { ...uiParts };
-
-  for (const [part, classes] of Object.entries(uiSizes[resolvedSize])) {
-    if (part in styles) styles[part] = cn(styles[part], classes);
+declare module '../ui.types' {
+  interface UiComponentConfig {
+    avatar?: AvatarConfig;
   }
-
-  styles.root = cn(styles.root, avatarVariants({ size: resolvedSize, variant }), customClass);
-
-  for (const [part, classes] of Object.entries(overrides ?? {})) {
-    styles[part] = cn(styles[part], classes);
-  }
-
-  return styles;
 }

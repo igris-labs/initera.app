@@ -1,62 +1,67 @@
-import type { VariantProps } from 'class-variance-authority';
-import { cva } from 'class-variance-authority';
-import { cn } from '../../../lib/utils';
-import uiConfig from '../ui.config';
-import type { PrimitiveSize, PrimitiveVariant } from '../ui.types';
+import type { RatingProps as PrimitiveRatingProps } from 'akaza-ui';
+import type * as Akaza from 'akaza-ui';
+import type { HTMLAttributes } from 'vue';
 
-export { default as Rating } from './Rating.vue';
-export const ratingDefaults = {
-  size: uiConfig.components?.rating?.size ?? uiConfig.defaults?.size ?? 'sm',
-  variant: uiConfig.components?.rating?.variant ?? uiConfig.defaults?.variant ?? 'default',
-};
+import { resolveVariants, tv } from '../../../utils/ui';
+import type { VariantProps } from '../../../utils/ui';
+import type { UiConfig } from '../ui.types';
 
-export const ratingVariants = cva('', {
+export const ratingVariants = tv({
+  slots: {
+    root: 'inline-flex cursor-pointer gap-1 select-none [--rating-target-size:var(--rating-icon-size)] data-akaza-disabled:cursor-default data-akaza-readonly:cursor-default pointer-coarse:[--rating-target-size:2.75rem]',
+    hiddenInput: 'sr-only',
+    item: 'relative inline-flex size-(--rating-target-size) shrink-0 text-dimmed',
+    base: 'pointer-events-none absolute inset-0 flex items-center justify-center text-muted-foreground/40',
+    fill: 'pointer-events-none absolute inset-y-0 overflow-hidden text-warning',
+    fillIcon: 'flex h-full w-(--rating-target-size) shrink-0 items-center justify-center',
+    radio:
+      'cursor-inherit absolute inset-y-0 m-0 h-full rounded-sm border-0 bg-transparent p-0 outline-none select-none focus-visible:outline-1 focus-visible:outline-offset-1 focus-visible:outline-ring focus-visible:outline-solid disabled:pointer-events-none disabled:opacity-50',
+  },
   variants: {
-    variant: { default: '', soft: 'bg-muted', outline: 'border border-outline' },
-    size: { sm: 'text-xs', md: 'text-sm', lg: 'text-base' },
+    size: {
+      xs: {
+        root: 'gap-1 [--rating-icon-size:0.75rem]',
+      },
+      sm: {
+        root: 'gap-1 [--rating-icon-size:0.875rem]',
+      },
+      md: {
+        root: 'gap-1.5 [--rating-icon-size:1rem]',
+      },
+      lg: {
+        root: 'gap-2 [--rating-icon-size:1.125rem]',
+      },
+      xl: {
+        root: 'gap-2.5 [--rating-icon-size:1.25rem]',
+      },
+    },
   },
   defaultVariants: {
-    variant: ratingDefaults.variant,
-    size: ratingDefaults.size,
+    size: 'sm',
   },
 });
 export type RatingVariants = VariantProps<typeof ratingVariants>;
+export type RatingConfig = Pick<RatingVariants, 'size'>;
+export type RatingSlots = InstanceType<typeof Akaza.Rating>['$slots'];
+export interface RatingProps extends Omit<PrimitiveRatingProps, 'ui' | 'class' | 'size'> {
+  class?: HTMLAttributes['class'];
+  ui?: Akaza.RatingUi;
+  size?: RatingVariants['size'];
+  modelValue?: number;
+}
+export function resolveRatingVariants(props: RatingVariants, config: UiConfig): RatingVariants {
+  return resolveVariants(
+    props,
+    config.components?.rating,
+    config.defaults,
+    ratingVariants.variants,
+  );
+}
 
-export const uiParts: Record<string, string> = {
-  root: 'inline-flex items-center gap-1',
-  item: 'size-5 text-foreground-dimmed data-[akaza-state=active]:text-warning',
-};
+export { default as Rating } from './Rating.vue';
 
-export const uiSizes: Record<PrimitiveSize, Record<string, string>> = {
-  sm: {
-    item: 'size-4',
-  },
-  md: {
-    item: 'size-5',
-  },
-  lg: {
-    item: 'size-6',
-  },
-};
-
-export function ratingUi(
-  size?: PrimitiveSize,
-  variant?: PrimitiveVariant,
-  customClass?: string,
-  overrides?: Record<string, string>,
-): Record<string, string> {
-  const resolvedSize = size ?? ratingDefaults.size;
-  const styles = { ...uiParts };
-
-  for (const [part, classes] of Object.entries(uiSizes[resolvedSize])) {
-    if (part in styles) styles[part] = cn(styles[part], classes);
+declare module '../ui.types' {
+  interface UiComponentConfig {
+    rating?: RatingConfig;
   }
-
-  styles.root = cn(styles.root, ratingVariants({ size: resolvedSize, variant }), customClass);
-
-  for (const [part, classes] of Object.entries(overrides ?? {})) {
-    styles[part] = cn(styles[part], classes);
-  }
-
-  return styles;
 }
